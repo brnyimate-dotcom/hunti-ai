@@ -1,0 +1,24 @@
+# Environment variables (NEVER push this)
+.env
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database (Local SQLite DB shouldn't be pushed)
+hunti.db
+*.db
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
