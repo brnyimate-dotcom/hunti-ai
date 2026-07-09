@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Acme Office Solutions",
+    "website": "https://www.acmeofficesolutions.com",
+    "address": "123 Main St, Springfield, USA",
+    "phone": "+1-555-123-4567"
+  },
+  {
+    "name": "Bright Horizons Marketing",
+    "website": "https://www.brighthorizonsmarketing.com",
+    "address": "456 Elm Ave, Metropolis, USA",
+    "phone": "+1-555-987-6543"
+  },
+  {
+    "name": "Summit Tech Innovations",
+    "website": "https://www.summittechinnovations.com",
+    "address": "789 Oak Blvd, Gotham, USA",
+    "phone": "+1-555-555-1212"
+  }
+]

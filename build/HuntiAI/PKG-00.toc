@@ -1,0 +1,78 @@
+('c:\\Assets\\VS Code\\Hunti-agent\\build\\HuntiAI\\HuntiAI.pkg',
+ {'BINARY': True,
+  'DATA': True,
+  'EXECUTABLE': True,
+  'EXTENSION': True,
+  'PYMODULE': True,
+  'PYSOURCE': True,
+  'PYZ': False,
+  'SPLASH': True,
+  'SYMLINK': False},
+ [('pyi-contents-directory _internal', '', 'OPTION'),
+  ('PYZ-00.pyz',
+   'c:\\Assets\\VS Code\\Hunti-agent\\build\\HuntiAI\\PYZ-00.pyz',
+   'PYZ'),
+  ('struct',
+   'c:\\Assets\\VS Code\\Hunti-agent\\build\\HuntiAI\\localpycs\\struct.pyc',
+   'PYMODULE'),
+  ('pyimod01_archive',
+   'c:\\Assets\\VS '
+   'Code\\Hunti-agent\\build\\HuntiAI\\localpycs\\pyimod01_archive.pyc',
+   'PYMODULE'),
+  ('pyimod02_importers',
+   'c:\\Assets\\VS '
+   'Code\\Hunti-agent\\build\\HuntiAI\\localpycs\\pyimod02_importers.pyc',
+   'PYMODULE'),
+  ('pyimod03_ctypes',
+   'c:\\Assets\\VS '
+   'Code\\Hunti-agent\\build\\HuntiAI\\localpycs\\pyimod03_ctypes.pyc',
+   'PYMODULE'),
+  ('pyimod04_pywin32',
+   'c:\\Assets\\VS '
+   'Code\\Hunti-agent\\build\\HuntiAI\\localpycs\\pyimod04_pywin32.pyc',
+   'PYMODULE'),
+  ('pyiboot01_bootstrap',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pythoncom',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_pythoncom.py',
+   'PYSOURCE'),
+  ('pyi_rth_pywintypes',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_pywintypes.py',
+   'PYSOURCE'),
+  ('pyi_rth_pkgutil',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
+   'PYSOURCE'),
+  ('pyi_rth_multiprocessing',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_multiprocessing.py',
+   'PYSOURCE'),
+  ('pyi_rth_cryptography_openssl',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_cryptography_openssl.py',
+   'PYSOURCE'),
+  ('pyi_rth_setuptools',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_setuptools.py',
+   'PYSOURCE'),
+  ('pyi_rth__tkinter',
+   'C:\\Assets\\VS '
+   'Code\\Hunti-agent\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth__tkinter.py',
+   'PYSOURCE'),
+  ('main', 'C:\\Assets\\VS Code\\Hunti-agent\\main.py', 'PYSOURCE')],
+ 'python314.dll',
+ True,
+ False,
+ False,
+ [],
+ None,
+ None,
+ None)

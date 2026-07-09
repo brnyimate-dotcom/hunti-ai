@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "C:\Assets\VS Code\Hunti-agent\launch.py", line 8, in main
+    from main import run_app
+  File "C:\Assets\VS Code\Hunti-agent\main.py", line 14, in <module>
+    from voice import speak_thought
+  File "C:\Assets\VS Code\Hunti-agent\voice.py", line 2, in <module>
+    import edge_tts
+ModuleNotFoundError: No module named 'edge_tts'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Assets\VS Code\Hunti-agent\launch.py", line 22, in <module>
+    main()
+    ~~~~^^
+  File "C:\Assets\VS Code\Hunti-agent\launch.py", line 13, in main
+    with log_path.open("a", encoding="utf-8") as log_file:
+         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sxril\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Assets\\VS Code\\Hunti-agent\\launch.log'
