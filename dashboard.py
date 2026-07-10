@@ -5,6 +5,7 @@ import plotly.express as px
 from datetime import datetime
 import os
 import hashlib
+import random
 
 # Import your modules
 from brain import ask_assistant
@@ -17,9 +18,10 @@ st.set_page_config(page_title="Hunti AI Analytics", page_icon="🤖", layout="wi
 # --- Session State ---
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
+
 if 'user_id' not in st.session_state:
-    # Generate unique user ID based on session
-    st.session_state.user_id = hashlib.md5(str(st.session_state.id).encode()).hexdigest()[:8]
+    # Generate unique user ID using timestamp and random number
+    st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
 
 # --- Database Connection ---
 DB_NAME = "hunti.db"
@@ -49,7 +51,42 @@ def get_data(query):
             return pd.DataFrame({'count': [32]})
         elif "COUNT(*) as count FROM emails WHERE status='sent'" in query:
             return pd.DataFrame({'count': [28]})
-        # ... (keep all your existing demo data code) ...
+        elif "status, COUNT(*) as count FROM emails GROUP BY status" in query:
+            return pd.DataFrame({
+                'status': ['sent', 'failed', 'pending'],
+                'count': [28, 2, 2]
+            })
+        elif "recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5" in query:
+            return pd.DataFrame({
+                'recipient_email': ['contact@acme.com', 'info@techsol.com', 'sales@globallog.com', 'admin@smartsys.com', 'hello@innovate.com'],
+                'subject': ['AI Automation Partnership', 'Streamline Your Workflow', 'Custom AI Solution', 'Lead Generation Demo', 'Sales Automation Proposal'],
+                'sent_at': ['2024-01-15 14:30:00', '2024-01-15 11:20:00', '2024-01-14 16:45:00', '2024-01-14 09:15:00', '2024-01-13 13:00:00']
+            })
+        elif "SELECT * FROM leads ORDER BY created_at DESC" in query:
+            return pd.DataFrame({
+                'id': [1, 2, 3, 4, 5],
+                'company_name': ['Acme Corp', 'Tech Solutions', 'Global Logistics', 'Smart Systems', 'Innovate Ltd'],
+                'website': ['acme.com', 'techsol.com', 'globallog.com', 'smartsys.com', 'innovate.com'],
+                'phone': ['+1-555-0101', '+1-555-0102', '+1-555-0103', '+1-555-0104', '+1-555-0105'],
+                'rating': [4.5, 3.8, 4.2, 4.9, 4.1],
+                'created_at': ['2024-01-15', '2024-01-14', '2024-01-13', '2024-01-12', '2024-01-11']
+            })
+        elif "SELECT * FROM pitches ORDER BY created_at DESC" in query:
+            return pd.DataFrame({
+                'id': [1, 2, 3],
+                'lead_id': [1, 2, 3],
+                'pitch_text': ['Personalized AI automation pitch for Acme Corp...', 'Custom workflow solution for Tech Solutions...', 'Lead generation demo for Global Logistics...'],
+                'created_at': ['2024-01-15', '2024-01-14', '2024-01-13']
+            })
+        elif "SELECT * FROM emails ORDER BY sent_at DESC" in query:
+            return pd.DataFrame({
+                'id': [1, 2, 3],
+                'pitch_id': [1, 2, 3],
+                'recipient_email': ['contact@acme.com', 'info@techsol.com', 'sales@globallog.com'],
+                'subject': ['AI Automation Partnership', 'Streamline Your Workflow', 'Custom AI Solution'],
+                'status': ['sent', 'sent', 'sent'],
+                'sent_at': ['2024-01-15 14:30:00', '2024-01-15 11:20:00', '2024-01-14 16:45:00']
+            })
     
     # Real database connection
     try:
@@ -79,12 +116,12 @@ with st.sidebar:
     st.caption("🚀 [Hunti AI](https://hunti-ai.streamlit.app) | Built with Python & Streamlit")
 
 # --- Main UI ---
-st.title(" Hunti AI - Command Center")
+st.title("🤖 Hunti AI - Command Center")
 st.markdown("Real-time analytics for your AI sales agent.")
 st.divider()
 
 # Create tabs: Analytics and Chat
-tab_analytics, tab_chat = st.tabs(["📊 Analytics Dashboard", " Chat with Hunti AI"])
+tab_analytics, tab_chat = st.tabs(["📊 Analytics Dashboard", "💬 Chat with Hunti AI"])
 
 with tab_analytics:
     # --- Top Metrics ---
