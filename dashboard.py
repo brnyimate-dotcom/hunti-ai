@@ -20,8 +20,10 @@ if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
 if 'user_id' not in st.session_state:
-    # Generate unique user ID using timestamp and random number
     st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
+
+if 'user_role' not in st.session_state:
+    st.session_state.user_role = None
 
 # --- Database Connection ---
 DB_NAME = "hunti.db"
@@ -98,10 +100,68 @@ def get_data(query):
         st.error(f"Database error: {e}")
         return pd.DataFrame()
 
+# Role-based suggestions
+ROLE_SUGGESTIONS = {
+    "Freelancer/Solopreneur": [
+        "💼 \"Find 10 small businesses that need automation help\"",
+        "✉️ \"Write a pitch offering my freelance automation services\"",
+        "📊 \"Help me identify which businesses need my skills most\"",
+        " \"Automate my client outreach so I can focus on work\"",
+    ],
+    "Small Business Owner": [
+        "🎯 \"Find potential clients in my industry\"",
+        "📧 \"Create personalized pitches for local businesses\"",
+        " \"Build an automation system for my sales team\"",
+        "📈 \"Help me scale my business with AI tools\"",
+    ],
+    "Agency Owner": [
+        "🏢 \"Find 20 mid-size companies needing automation consulting\"",
+        "💡 \"Write enterprise-level pitch for AI transformation services\"",
+        " \"Build a complete CRM system for my agency\"",
+        "📊 \"Automate lead generation and qualification process\"",
+    ],
+    "Enterprise/Corporate": [
+        " \"Design an enterprise-wide automation strategy\"",
+        "👥 \"Create a pilot program for department automation\"",
+        "📋 \"Build ROI analysis for AI implementation\"",
+        "🎓 \"Develop training plan for AI adoption\"",
+    ],
+    "Developer/Tech": [
+        " \"Help me build custom automation tools for clients\"",
+        "🔌 \"Integrate AI APIs into existing workflows\"",
+        "️ \"Create a white-label automation solution\"",
+        "📱 \"Build mobile-friendly lead capture system\"",
+    ]
+}
+
+ROLE_DESCRIPTIONS = {
+    "Freelancer/Solopreneur": "Looking for quick wins and time-saving automation",
+    "Small Business Owner": "Ready to scale but needs practical solutions",
+    "Agency Owner": "Needs systems to serve multiple clients efficiently",
+    "Enterprise/Corporate": "Requires strategic implementation and ROI proof",
+    "Developer/Tech": "Wants to build or integrate automation tools"
+}
+
 # --- Sidebar: User Info & Rate Limit ---
 with st.sidebar:
-    st.title("👤 User Info")
+    st.title("👤 User Profile")
+    
+    # Role selector
+    selected_role = st.selectbox(
+        "What best describes you?",
+        options=["Freelancer/Solopreneur", "Small Business Owner", "Agency Owner", "Enterprise/Corporate", "Developer/Tech"],
+        index=0 if st.session_state.user_role is None else list(ROLE_SUGGESTIONS.keys()).index(st.session_state.user_role)
+    )
+    
+    if selected_role != st.session_state.user_role:
+        st.session_state.user_role = selected_role
+        st.rerun()
+    
     st.write(f"**User ID:** `{st.session_state.user_id}`")
+    
+    # Show role description
+    if st.session_state.user_role:
+        st.info(f" {ROLE_DESCRIPTIONS[st.session_state.user_role]}")
     
     # Show usage stats
     stats = get_usage_stats(st.session_state.user_id)
@@ -110,13 +170,10 @@ with st.sidebar:
     
     st.divider()
     
-    st.info("💡 **Demo Mode:** You can chat with Hunti AI below. Rate limit: 10 requests per hour.")
-    
-    st.divider()
-    st.caption("🚀 [Hunti AI](https://hunti-ai.streamlit.app) | Built with Python & Streamlit")
+    st.caption(" [Hunti AI](https://hunti-ai.streamlit.app) | Built with Python & Streamlit")
 
 # --- Main UI ---
-st.title("🤖 Hunti AI - Command Center")
+st.title(" Hunti AI - Command Center")
 st.markdown("Real-time analytics for your AI sales agent.")
 st.divider()
 
@@ -185,6 +242,22 @@ with tab_chat:
     st.title("💬 Chat with Hunti AI")
     st.markdown("Ask Hunti to perform tasks, analyze screens, or automate workflows.")
     
+    # Show role-based suggestions
+    if st.session_state.user_role:
+        st.subheader(f"🎯 Suggestions for {st.session_state.user_role}")
+        
+        # Display suggestion chips
+        suggestions = ROLE_SUGGESTIONS[st.session_state.user_role]
+        cols = st.columns(2)
+        for i, suggestion in enumerate(suggestions):
+            with cols[i % 2]:
+                if st.button(suggestion, key=f"sugg_{i}", use_container_width=True):
+                    # This will be handled by the chat input below
+                    st.session_state.suggested_prompt = suggestion.replace('\"', '').replace('💼 ', '').replace('️ ', '').replace('📊 ', '').replace('⏰ ', '').replace(' ', '').replace('📧 ', '').replace('🤖 ', '').replace(' ', '').replace('🏢 ', '').replace('💡 ', '').replace(' ', '').replace('🏭 ', '').replace('👥 ', '').replace(' ', '').replace('🎓 ', '').replace('💻 ', '').replace(' ', '').replace('🛠️ ', '').replace('📱 ', '')
+                    st.rerun()
+        
+        st.divider()
+    
     # Display chat history
     chat_container = st.container()
     with chat_container:
@@ -193,12 +266,19 @@ with tab_chat:
                 st.markdown(message["content"])
     
     # Chat input
-    if prompt := st.chat_input("What would you like Hunti to do?"):
+    prompt = st.chat_input("What would you like Hunti to do?")
+    
+    # Handle suggested prompts
+    if hasattr(st.session_state, 'suggested_prompt') and st.session_state.suggested_prompt:
+        prompt = st.session_state.suggested_prompt
+        del st.session_state.suggested_prompt
+    
+    if prompt:
         # Check rate limit
         allowed, message = check_rate_limit(st.session_state.user_id, action="chat", max_requests=10, window_minutes=60)
         
         if not allowed:
-            st.error(f"⚠️ {message}")
+            st.error(f"️ {message}")
             st.stop()
         
         # Add user message to history
@@ -213,7 +293,6 @@ with tab_chat:
             with st.spinner("Hunti is thinking..."):
                 try:
                     # Capture screen (for demo, we'll use a placeholder)
-                    # In production: _, img_b64 = capture_screen()
                     img_b64 = ""  # Placeholder for demo
                     
                     # Get AI response
