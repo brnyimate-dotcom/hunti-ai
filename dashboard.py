@@ -19,8 +19,24 @@ st.set_page_config(page_title="Hunti AI Analytics", page_icon="🤖", layout="wi
 st.markdown("""
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .metric-card {background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0;}
-        .suggestion-btn {width: 100%; text-align: left; padding: 15px; margin: 5px 0;}
+        .metric-card {
+            background-color: #1E1E1E; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 10px 0;
+            border: 1px solid #333;
+        }
+        .metric-card h3 {
+            margin: 10px 0 5px 0;
+            font-size: 2em;
+        }
+        .metric-card p {
+            margin: 0;
+            color: #888;
+        }
+        .metric-card i {
+            margin-bottom: 10px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -106,37 +122,37 @@ def get_data(query):
         st.error(f"Database error: {e}")
         return pd.DataFrame()
 
-# Role-based suggestions with professional icons
+# Role-based suggestions
 ROLE_SUGGESTIONS = {
     "Freelancer/Solopreneur": [
-        ("fa-briefcase", "Find 10 small businesses that need automation help"),
-        ("fa-envelope", "Write a pitch offering my freelance automation services"),
-        ("fa-chart-line", "Help me identify which businesses need my skills most"),
-        ("fa-clock", "Automate my client outreach so I can focus on work"),
+        "Find 10 small businesses that need automation help",
+        "Write a pitch offering my freelance automation services",
+        "Help me identify which businesses need my skills most",
+        "Automate my client outreach so I can focus on work",
     ],
     "Small Business Owner": [
-        ("fa-bullseye", "Find potential clients in my industry"),
-        ("fa-envelope-open-text", "Create personalized pitches for local businesses"),
-        ("fa-cogs", "Build an automation system for my sales team"),
-        ("fa-chart-line", "Help me scale my business with AI tools"),
+        "Find potential clients in my industry",
+        "Create personalized pitches for local businesses",
+        "Build an automation system for my sales team",
+        "Help me scale my business with AI tools",
     ],
     "Agency Owner": [
-        ("fa-building", "Find 20 mid-size companies needing automation consulting"),
-        ("fa-lightbulb", "Write enterprise-level pitch for AI transformation services"),
-        ("fa-database", "Build a complete CRM system for my agency"),
-        ("fa-robot", "Automate lead generation and qualification process"),
+        "Find 20 mid-size companies needing automation consulting",
+        "Write enterprise-level pitch for AI transformation services",
+        "Build a complete CRM system for my agency",
+        "Automate lead generation and qualification process",
     ],
     "Enterprise/Corporate": [
-        ("fa-sitemap", "Design an enterprise-wide automation strategy"),
-        ("fa-users", "Create a pilot program for department automation"),
-        ("fa-calculator", "Build ROI analysis for AI implementation"),
-        ("fa-graduation-cap", "Develop training plan for AI adoption"),
+        "Design an enterprise-wide automation strategy",
+        "Create a pilot program for department automation",
+        "Build ROI analysis for AI implementation",
+        "Develop training plan for AI adoption",
     ],
     "Developer/Tech": [
-        ("fa-code", "Help me build custom automation tools for clients"),
-        ("fa-plug", "Integrate AI APIs into existing workflows"),
-        ("fa-cube", "Create a white-label automation solution"),
-        ("fa-mobile-alt", "Build mobile-friendly lead capture system"),
+        "Help me build custom automation tools for clients",
+        "Integrate AI APIs into existing workflows",
+        "Create a white-label automation solution",
+        "Build mobile-friendly lead capture system",
     ]
 }
 
@@ -150,7 +166,7 @@ ROLE_DESCRIPTIONS = {
 
 # --- Sidebar: User Info & Rate Limit ---
 with st.sidebar:
-    st.markdown('<i class="fas fa-user-circle fa-2x"></i>', unsafe_allow_html=True)
+    st.markdown('<i class="fas fa-user-circle" style="font-size: 2em; color: #4CAF50;"></i>', unsafe_allow_html=True)
     st.title("User Profile")
     
     selected_role = st.selectbox(
@@ -176,7 +192,7 @@ with st.sidebar:
     st.caption("Hunti AI | Built with Python & Streamlit")
 
 # --- Main UI ---
-st.markdown('<i class="fas fa-robot fa-3x"></i>', unsafe_allow_html=True)
+st.markdown('<i class="fas fa-robot" style="font-size: 2.5em; color: #2196F3;"></i>', unsafe_allow_html=True)
 st.title("Hunti AI - Command Center")
 st.markdown("Real-time analytics for your AI sales agent.")
 st.divider()
@@ -189,17 +205,35 @@ with tab_analytics:
     with col1:
         leads_df = get_data("SELECT COUNT(*) as count FROM leads")
         total_leads = leads_df['count'][0] if not leads_df.empty else 0
-        st.markdown(f'<div class="metric-card"><i class="fas fa-database fa-2x" style="color: #4CAF50;"></i><h3>{total_leads}</h3><p>Total Leads Scraped</p></div>', unsafe_allow_html=True)
+        st.markdown(f'''
+            <div class="metric-card">
+                <i class="fas fa-database fa-2x" style="color: #4CAF50;"></i>
+                <h3>{total_leads}</h3>
+                <p>Total Leads Scraped</p>
+            </div>
+        ''', unsafe_allow_html=True)
 
     with col2:
         pitches_df = get_data("SELECT COUNT(*) as count FROM pitches")
         total_pitches = pitches_df['count'][0] if not pitches_df.empty else 0
-        st.markdown(f'<div class="metric-card"><i class="fas fa-file-alt fa-2x" style="color: #2196F3;"></i><h3>{total_pitches}</h3><p>Pitches Generated</p></div>', unsafe_allow_html=True)
+        st.markdown(f'''
+            <div class="metric-card">
+                <i class="fas fa-file-alt fa-2x" style="color: #2196F3;"></i>
+                <h3>{total_pitches}</h3>
+                <p>Pitches Generated</p>
+            </div>
+        ''', unsafe_allow_html=True)
 
     with col3:
         emails_df = get_data("SELECT COUNT(*) as count FROM emails WHERE status='sent'")
         total_emails = emails_df['count'][0] if not emails_df.empty else 0
-        st.markdown(f'<div class="metric-card"><i class="fas fa-paper-plane fa-2x" style="color: #FF9800;"></i><h3>{total_emails}</h3><p>Emails Sent</p></div>', unsafe_allow_html=True)
+        st.markdown(f'''
+            <div class="metric-card">
+                <i class="fas fa-paper-plane fa-2x" style="color: #FF9800;"></i>
+                <h3>{total_emails}</h3>
+                <p>Emails Sent</p>
+            </div>
+        ''', unsafe_allow_html=True)
 
     st.divider()
     st.subheader("Activity Overview")
@@ -237,7 +271,7 @@ with tab_analytics:
         st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
 
 with tab_chat:
-    st.markdown('<i class="fas fa-comments fa-3x"></i>', unsafe_allow_html=True)
+    st.markdown('<i class="fas fa-comments" style="font-size: 2.5em; color: #9C27B0;"></i>', unsafe_allow_html=True)
     st.title("Chat with Hunti AI")
     st.markdown("Ask Hunti to perform tasks, analyze screens, or automate workflows.")
     
@@ -245,10 +279,9 @@ with tab_chat:
         st.subheader(f"Suggestions for {st.session_state.user_role}")
         
         cols = st.columns(2)
-        for i, (icon, text) in enumerate(ROLE_SUGGESTIONS[st.session_state.user_role]):
+        for i, text in enumerate(ROLE_SUGGESTIONS[st.session_state.user_role]):
             with cols[i % 2]:
-                btn_html = f'<button class="suggestion-btn"><i class="fas {icon}"></i> {text}</button>'
-                if st.button(btn_html, key=f"sugg_{i}"):
+                if st.button(text, key=f"sugg_{i}", use_container_width=True):
                     st.session_state.suggested_prompt = text
                     st.rerun()
         
@@ -270,7 +303,7 @@ with tab_chat:
         allowed, message = check_rate_limit(st.session_state.user_id, action="chat", max_requests=10, window_minutes=60)
         
         if not allowed:
-            st.error(f"⚠️ {message}")
+            st.error(f"️ {message}")
             st.stop()
         
         st.session_state.chat_history.append({"role": "user", "content": prompt})
