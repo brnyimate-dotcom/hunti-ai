@@ -52,6 +52,16 @@ def init_db():
         )
     ''')
 
+    # 4. Table for Usage Logs (Rate limiting & Bot prevention)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS usage_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            action TEXT NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
     conn.close()
     print(f"✅ Database '{DB_NAME}' initialized successfully!")
