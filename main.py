@@ -310,7 +310,8 @@ class HuntiUI(ctk.CTk):
             self.after(0, lambda: self.badge_leads.configure(text=f"Total Leads: {get_lead_count_from_db()}"))
             
         except Exception as exc:
-            self.after(0, lambda: messagebox.showerror("Error", f"Could not generate pitches: {exc}"))
+            error_msg = str(exc)
+            self.after(0, lambda: messagebox.showerror("Error", f"Could not generate pitches: {error_msg}"))
         finally:
             self.after(0, lambda: self.generate_btn.configure(state="normal", text="Generate Sales Pitches"))
 
