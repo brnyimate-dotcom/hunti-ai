@@ -1,11 +1,8 @@
 import json
 import os
-import base64
 from typing import Any, Dict, List
 from dotenv import load_dotenv
 from groq import Groq
-from google import genai
-from google.genai import types
 from database import get_connection
 
 load_dotenv()
@@ -25,12 +22,6 @@ def init_groq_client() -> Groq:
     """Initialize the Groq client for text tasks."""
     api_key = _load_api_key("GROQ_API_KEY")
     return Groq(api_key=api_key)
-
-
-def init_gemini_client() -> genai.Client:
-    """Initialize the Gemini client for vision tasks."""
-    api_key = _load_api_key("GEMINI_API_KEY")
-    return genai.Client(api_key=api_key)
 
 
 def save_leads_to_db(leads: List[Dict[str, Any]]) -> int:
@@ -131,7 +122,6 @@ def generate_pitch(client: Groq, lead: Dict[str, Any]) -> str:
 
 def save_pitches(pitches: List[Dict[str, str]], output_path: str = "pitches.json") -> None:
     """Save generated pitches to database (JSON file is now optional)."""
-    # We already save to database in generate_pitch, so this is just for backup
     try:
         with open(output_path, "w", encoding="utf-8") as out_file:
             json.dump(pitches, out_file, indent=2, ensure_ascii=False)
@@ -191,48 +181,34 @@ def log_email_sent(pitch_id: int, recipient_email: str, subject: str) -> None:
     conn.close()
 
 
-def ask_assistant(user_task: str, image_base64: str, temperature: float = 0.2) -> Dict[str, Any]:
-    """Query GEMINI (vision only) to determine the next desktop assistant action."""
-    client = init_gemini_client()
-    
-    # Convert base64 to bytes and create proper image Part for Gemini
-    image_bytes = base64.b64decode(image_base64)
-    image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/png")
+def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
+    """Query GROQ text model to act as a smart assistant."""
+    client = init_groq_client()
     
     prompt = (
-        "You are Hunti, a desktop automation assistant. "
-        "Analyze the screenshot and the user task, then return ONLY valid JSON with keys: "
-        "thought, action, x, y, text. "
-        "The action must be one of: click, type, scroll, done. "
-        "Coordinates x and y are screen pixel positions with top-left origin. "
-        f"User task: {user_task}. "
-        "The response must be parseable JSON and nothing else."
+        "You are Hunti, a highly intelligent desktop AI assistant. "
+        "Analyze the user's request and provide a helpful, concise, and professional response. "
+        "Return ONLY valid JSON with keys: thought, text. "
+        "'thought' should be a brief internal reasoning. 'text' is your final answer to the user. "
+        f"User task: {user_task}."
     )
-    
-    text_part = types.Part.from_text(text=prompt)
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=[image_part, text_part],
-            config=types.GenerateContentConfig(
-                temperature=max(0.0, min(1.0, temperature)),
-                max_output_tokens=400,
-            ),
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile", 
+            messages=[{"role": "user", "content": prompt}],
+            temperature=max(0.0, min(1.0, temperature)),
+            max_tokens=500,
         )
     except Exception as exc:
-        raise RuntimeError(f"Gemini assistant request failed: {exc}") from exc
+        raise RuntimeError(f"Groq assistant request failed: {exc}") from exc
 
-    if not response.candidates or not response.candidates[0].content.parts:
-        raise RuntimeError("Gemini assistant response did not include text.")
-    
-    response_text = response.candidates[0].content.parts[0].text
-    return parse_response(response_text)
+    response_text = response.choices[0].message.content
+    return parse_text_response(response_text)
 
 
-def parse_response(response_text: str) -> Dict[str, Any]:
-    """Parse the model output as strict JSON and validate required fields."""
-    # Clean up if the model adds markdown code blocks
+def parse_text_response(response_text: str) -> Dict[str, Any]:
+    """Parse the model output as JSON, with a fallback for raw text."""
     cleaned = response_text.strip()
     if cleaned.startswith("```json"):
         cleaned = cleaned.replace("```json", "").replace("```", "").strip()
@@ -242,15 +218,14 @@ def parse_response(response_text: str) -> Dict[str, Any]:
     try:
         parsed = json.loads(cleaned)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Model response was not valid JSON: {exc}\n{response_text}") from exc
+        # Fallback if the model just returns raw text instead of JSON
+        return {"thought": "Raw text response", "text": cleaned}
 
-    required_fields = {"thought", "action", "x", "y", "text"}
-    if not required_fields.issubset(parsed):
-        missing = required_fields - set(parsed)
-        raise ValueError(f"Missing required JSON fields: {missing}")
-
-    if parsed["action"] not in {"click", "type", "scroll", "done"}:
-        raise ValueError("Action must be one of: click, type, scroll, done.")
+    # Ensure we have the required keys
+    if "text" not in parsed:
+        parsed["text"] = str(parsed)
+    if "thought" not in parsed:
+        parsed["thought"] = "Processing request..."
 
     return parsed
 
