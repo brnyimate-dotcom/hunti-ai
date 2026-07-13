@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 # Import database and email modules
-from database import init_db, get_lead_count_from_db
+from database import init_db, get_lead_count_from_db, log_form_submission
 from email_sender import send_pitch_email
 from browser_automation import fill_and_submit_form
 
@@ -158,7 +158,6 @@ class HuntiUI(ctk.CTk):
         
         ctk.CTkLabel(left_panel, text="Lead Source", font=ctk.CTkFont(size=16, weight="bold")).pack(anchor="w", padx=15, pady=(15, 5))
         
-        # Note: We removed the manual file browse since we now use the DB
         ctk.CTkLabel(left_panel, text="Database: hunti.db", text_color="gray").pack(anchor="w", padx=15, pady=5)
 
         self.generate_btn = ctk.CTkButton(left_panel, text="Generate Sales Pitches", height=40, command=self._generate_pitches)
@@ -181,7 +180,6 @@ class HuntiUI(ctk.CTk):
         self.send_email_btn = ctk.CTkButton(right_panel, text="Send via Email", command=self._send_pitch_email)
         self.send_email_btn.pack(padx=15, pady=(0, 5), anchor="e")
         
-        # --- NEW BUTTON ---
         self.submit_web_btn = ctk.CTkButton(right_panel, text="Submit via Website", fg_color="gray40", hover_color="gray30", command=self._submit_via_website)
         self.submit_web_btn.pack(padx=15, pady=(0, 5), anchor="e")
         
@@ -307,15 +305,12 @@ class HuntiUI(ctk.CTk):
 
     def _generate_pitches_worker(self) -> None:
         try:
-            # brain.py now handles reading from DB and saving to DB
             pitches = build_pitches() 
             
-            # Refresh the UI list from the database
             db_pitches = get_pitches_from_db()
             self.after(0, lambda: self._populate_pitch_list(db_pitches))
             self.after(0, lambda: self.pitch_status_label.configure(text=f"Created {len(pitches)} pitches."))
             
-            # Update lead count badge just in case
             self.after(0, lambda: self.badge_leads.configure(text=f"Total Leads: {get_lead_count_from_db()}"))
             
         except Exception as exc:
@@ -362,7 +357,6 @@ class HuntiUI(ctk.CTk):
 
         company_name = pitch_text.split("\n")[0].replace("Company: ", "")
         
-        # Find the currently selected pitch object to get its DB ID
         selected_pitch_obj = None
         for p in self.generated_pitches:
             if p['company_name'] == company_name:
@@ -383,7 +377,6 @@ class HuntiUI(ctk.CTk):
             subject = f"AI Automation Proposal for {company_name}"
             result = send_pitch_email(recipient_email, subject, pitch_text)
             
-            # Log the email in our database!
             if selected_pitch_obj and 'id' in selected_pitch_obj:
                 log_email_sent(selected_pitch_obj['id'], recipient_email, subject)
                 
@@ -401,6 +394,13 @@ class HuntiUI(ctk.CTk):
             return
 
         company_name = pitch_text.split("\n")[0].replace("Company: ", "")
+        
+        # Find the currently selected pitch object to get its DB ID for logging
+        selected_pitch_obj = None
+        for p in self.generated_pitches:
+            if p['company_name'] == company_name:
+                selected_pitch_obj = p
+                break
 
         # 1. Ask for the website URL
         target_url = ctk.CTkInputDialog(
@@ -435,6 +435,10 @@ class HuntiUI(ctk.CTk):
                 loop.close()
 
                 if success:
+                    # Log to database!
+                    if selected_pitch_obj and 'id' in selected_pitch_obj:
+                        log_form_submission(selected_pitch_obj['id'], company_name, target_url)
+                    
                     self.after(0, lambda: messagebox.showinfo("Success", f"Form submitted to {target_url}!"))
                 else:
                     self.after(0, lambda: messagebox.showerror("Failed", "Could not submit the form. Check logs."))
