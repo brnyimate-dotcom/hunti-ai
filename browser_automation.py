@@ -128,7 +128,7 @@ def test_automation():
     }
     
     # Run with headless=False so you can WATCH it work!
-    asyncio.run(fill_and_submit_form(test_url, test_data, headless=true))
+    asyncio.run(fill_and_submit_form(test_url, test_data, headless=True))
 
 if __name__ == "__main__":
     test_automation()
