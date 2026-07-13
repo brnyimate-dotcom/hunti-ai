@@ -15,6 +15,7 @@ from email_sender import send_pitch_email
 from browser_automation import fill_and_submit_form
 
 # Import your existing modules
+# Kept for future vision integration:
 from vision import capture_screen
 from brain import ask_assistant, build_pitches, get_pitches_from_db, log_email_sent
 from actions import perform_action
@@ -222,35 +223,29 @@ class HuntiUI(ctk.CTk):
 
         self.run_button.configure(state="disabled", text="Thinking...")
         self._append_output(f"> {task}\n")
-        self._set_status("Capturing screen and querying AI...")
+        self._set_status("Querying AI...")
 
         thread = threading.Thread(target=self._execute_task, args=(task,), daemon=True)
         thread.start()
 
     def _execute_task(self, task: str) -> None:
         try:
-            _, image_b64 = capture_screen()
-            result = ask_assistant(task, image_b64, temperature=self.temperature_var.get())
+            # --- TEXT ONLY MODE ---
+            # Vision and Actions are kept in imports for future API integration.
+            # For now, we bypass capture_screen() and perform_action() to avoid API errors.
+            
+            self._append_output("Hunti is thinking...\n\n")
+            result = ask_assistant(task, temperature=self.temperature_var.get())
 
             self._append_output(f"{json.dumps(result, indent=2)}\n\n")
-            self._set_status("Awaiting confirmation...")
+            self._set_status("Task completed.")
             
-            if not self._confirm_action(result):
-                self._append_output("Action canceled by user.\n\n")
-                self._set_status("Canceled.")
-                return
-
             thought = result.get("thought", "")
-            action_status = perform_action(result)
-            self._append_output(f"Action result: {json.dumps(action_status)}\n\n")
-            self._set_status("Action executed.")
+            text = result.get("text", "")
 
-            if self.auto_speak_var.get() and thought:
-                speak_thought(thought, rate=self.speech_rate_var.get(), volume=(self.volume_var.get() / 100.0))
-
-            text_to_speak = result.get("text", "")
-            if text_to_speak and text_to_speak != thought:
-                speak_thought(text_to_speak, rate=self.speech_rate_var.get(), volume=(self.volume_var.get() / 100.0))
+            # Speak the response if enabled
+            if self.auto_speak_var.get() and text:
+                speak_thought(text, rate=self.speech_rate_var.get(), volume=(self.volume_var.get() / 100.0))
 
             self.after(0, lambda: self._add_task_history(task))
             
@@ -261,6 +256,7 @@ class HuntiUI(ctk.CTk):
         finally:
             self.run_button.configure(state="normal", text="Run Task")
 
+    # Kept for future vision integration:
     def _confirm_action(self, action_payload: dict) -> bool:
         result_event = threading.Event()
         user_response = {"confirmed": False}
