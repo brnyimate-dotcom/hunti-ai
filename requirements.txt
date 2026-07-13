@@ -8,3 +8,4 @@ Pillow
 mss
 pyautogui
 edge-tts
+playwright

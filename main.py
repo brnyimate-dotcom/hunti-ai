@@ -5,12 +5,14 @@ import threading
 import json
 import datetime
 import logging
+import asyncio
 from pathlib import Path
 from typing import Any, Dict, List
 
 # Import database and email modules
 from database import init_db, get_lead_count_from_db
 from email_sender import send_pitch_email
+from browser_automation import fill_and_submit_form
 
 # Import your existing modules
 from vision import capture_screen
@@ -178,6 +180,10 @@ class HuntiUI(ctk.CTk):
 
         self.send_email_btn = ctk.CTkButton(right_panel, text="Send via Email", command=self._send_pitch_email)
         self.send_email_btn.pack(padx=15, pady=(0, 5), anchor="e")
+        
+        # --- NEW BUTTON ---
+        self.submit_web_btn = ctk.CTkButton(right_panel, text="Submit via Website", fg_color="gray40", hover_color="gray30", command=self._submit_via_website)
+        self.submit_web_btn.pack(padx=15, pady=(0, 5), anchor="e")
         
         ctk.CTkButton(right_panel, text="Copy Selected Pitch", fg_color="gray40", hover_color="gray30", command=self._copy_selected_pitch).pack(padx=15, pady=(0, 15), anchor="e")
 
@@ -386,6 +392,59 @@ class HuntiUI(ctk.CTk):
             messagebox.showerror("Email Failed", str(e))
         finally:
             self.send_email_btn.configure(state="normal", text="Send via Email")
+
+    def _submit_via_website(self) -> None:
+        """Handles submitting the selected pitch via a website contact form."""
+        pitch_text = self.pitch_details.get("1.0", "end").strip()
+        if not pitch_text or "Company:" not in pitch_text:
+            messagebox.showwarning("No Pitch Selected", "Please select a pitch from the list first.")
+            return
+
+        company_name = pitch_text.split("\n")[0].replace("Company: ", "")
+
+        # 1. Ask for the website URL
+        target_url = ctk.CTkInputDialog(
+            text=f"Enter the contact page URL for {company_name}:",
+            title="Submit via Website"
+        ).get_input()
+
+        if not target_url or not target_url.startswith("http"):
+            return
+
+        # 2. Ask for sender info
+        sender_name = ctk.CTkInputDialog(text="Enter your name:", title="Sender Info").get_input()
+        sender_email = ctk.CTkInputDialog(text="Enter your email:", title="Sender Info").get_input()
+
+        if not sender_name or not sender_email:
+            return
+
+        # 3. Update UI and run in background thread
+        self.submit_web_btn.configure(state="disabled", text="Submitting...")
+
+        def run_automation():
+            try:
+                data = {
+                    "name": sender_name,
+                    "email": sender_email,
+                    "message": pitch_text
+                }
+                # Run async function in a new event loop for the thread
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                success = loop.run_until_complete(fill_and_submit_form(target_url, data, headless=True))
+                loop.close()
+
+                if success:
+                    self.after(0, lambda: messagebox.showinfo("Success", f"Form submitted to {target_url}!"))
+                else:
+                    self.after(0, lambda: messagebox.showerror("Failed", "Could not submit the form. Check logs."))
+            except Exception as e:
+                self.after(0, lambda: messagebox.showerror("Error", str(e)))
+            finally:
+                self.after(0, lambda: self.submit_web_btn.configure(state="normal", text="Submit via Website"))
+
+        thread = threading.Thread(target=run_automation, daemon=True)
+        thread.start()
 
     def _on_test_tts(self) -> None:
         speak_thought("This is a volume test from Hunti AI.", rate=self.speech_rate_var.get(), volume=(self.volume_var.get() / 100.0))
