@@ -7,7 +7,7 @@ import os
 import random
 
 from brain import ask_assistant
-from vision import capture_screen
+from vision import capture_screen # Kept for future integration
 from rate_limiter import check_rate_limit, get_usage_stats
 
 st.set_page_config(page_title="Hunti AI Analytics", page_icon="🤖", layout="wide")
@@ -44,7 +44,7 @@ def get_data(query):
         if "COUNT(*) as count FROM leads" in query: return pd.DataFrame({'count': [47]})
         elif "COUNT(*) as count FROM pitches" in query: return pd.DataFrame({'count': [32]})
         elif "COUNT(*) as count FROM emails WHERE status='sent'" in query: return pd.DataFrame({'count': [28]})
-        elif "COUNT(*) as count FROM form_submissions" in query: return pd.DataFrame({'count': [15]}) # NEW METRIC
+        elif "COUNT(*) as count FROM form_submissions" in query: return pd.DataFrame({'count': [15]})
         elif "status, COUNT(*) as count FROM emails GROUP BY status" in query:
             return pd.DataFrame({'status': ['sent', 'failed', 'pending'], 'count': [28, 2, 2]})
         elif "recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5" in query:
@@ -55,7 +55,7 @@ def get_data(query):
             return pd.DataFrame({'id': [1, 2], 'lead_id': [1, 2], 'pitch_text': ['Pitch for Acme...', 'Pitch for Tech...'], 'created_at': ['2024-01-15', '2024-01-14']})
         elif "SELECT * FROM emails ORDER BY sent_at DESC" in query:
             return pd.DataFrame({'id': [1], 'pitch_id': [1], 'recipient_email': ['contact@acme.com'], 'subject': ['AI Partnership'], 'status': ['sent'], 'sent_at': ['2024-01-15']})
-        elif "SELECT * FROM form_submissions ORDER BY submitted_at DESC" in query: # NEW TABLE
+        elif "SELECT * FROM form_submissions ORDER BY submitted_at DESC" in query:
             return pd.DataFrame({'id': [1, 2], 'company_name': ['Acme Corp', 'Global Logistics'], 'url': ['acme.com/contact', 'globallog.com/contact'], 'status': ['success', 'success'], 'submitted_at': ['2024-01-15', '2024-01-14']})
     
     try:
@@ -106,7 +106,6 @@ st.divider()
 tab_analytics, tab_chat = st.tabs(["Analytics Dashboard", "Chat with Hunti AI"])
 
 with tab_analytics:
-    # NEW: 4 Columns now!
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
@@ -121,7 +120,6 @@ with tab_analytics:
         emails_df = get_data("SELECT COUNT(*) as count FROM emails WHERE status='sent'")
         st.markdown(f'<div class="metric-card"><i class="fas fa-paper-plane fa-2x" style="color: #FF9800;"></i><h3>{emails_df["count"][0] if not emails_df.empty else 0}</h3><p>Emails Sent</p></div>', unsafe_allow_html=True)
 
-    # NEW METRIC CARD
     with col4:
         forms_df = get_data("SELECT COUNT(*) as count FROM form_submissions")
         st.markdown(f'<div class="metric-card"><i class="fas fa-paper-plane fa-2x" style="color: #9C27B0;"></i><h3>{forms_df["count"][0] if not forms_df.empty else 0}</h3><p>Forms Submitted</p></div>', unsafe_allow_html=True)
@@ -144,11 +142,11 @@ with tab_analytics:
 
     st.divider()
     st.subheader("Database Records")
-    tab1, tab2, tab3, tab4 = st.tabs(["Leads", "Pitches", "Emails", "Form Submissions"]) # NEW TAB
+    tab1, tab2, tab3, tab4 = st.tabs(["Leads", "Pitches", "Emails", "Form Submissions"])
     with tab1: st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
     with tab2: st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
     with tab3: st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
-    with tab4: st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True) # NEW TAB CONTENT
+    with tab4: st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True)
 
 with tab_chat:
     st.markdown('<i class="fas fa-comments" style="font-size: 2.5em; color: #9C27B0;"></i>', unsafe_allow_html=True)
@@ -179,7 +177,8 @@ with tab_chat:
         with st.chat_message("assistant"):
             with st.spinner("Hunti is thinking..."):
                 try:
-                    result = ask_assistant(prompt, "", temperature=0.7)
+                    # FIXED: Removed the empty string argument to match the new text-only brain.py
+                    result = ask_assistant(prompt, temperature=0.7)
                     response_text = result.get('text', 'Task processed successfully!')
                     st.markdown(response_text)
                     st.session_state.chat_history.append({"role": "assistant", "content": response_text})
