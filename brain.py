@@ -24,6 +24,15 @@ def init_groq_client() -> Groq:
     return Groq(api_key=api_key)
 
 
+def load_business_profile() -> Dict[str, Any]:
+    """Load the business profile from the JSON file."""
+    try:
+        with open("business_profile.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+
+
 def save_leads_to_db(leads: List[Dict[str, Any]]) -> int:
     """Save leads to the database and return the count."""
     conn = get_connection()
@@ -182,12 +191,29 @@ def log_email_sent(pitch_id: int, recipient_email: str, subject: str) -> None:
 
 
 def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
-    """Query GROQ text model to act as a smart assistant."""
+    """Query GROQ text model to act as a smart sales assistant."""
     client = init_groq_client()
+    profile = load_business_profile()
     
+    # Inject business context into the prompt
+    if profile:
+        context = (
+            f"You are the AI Sales Assistant for {profile['business_name']}, owned by {profile['owner']}. "
+            f"Your goal is to help potential clients understand our services and book a demo. "
+            f"Here is our business context:\n"
+            f"- Tagline: {profile['tagline']}\n"
+            f"- Services: {', '.join(profile['services'])}\n"
+            f"- Target Audience: {profile['target_audience']}\n"
+            f"- Key Benefits: {', '.join(profile['unique_selling_points'])}\n"
+            f"- Current Offer: {profile['offer']}\n\n"
+        )
+    else:
+        context = "You are Hunti, a highly intelligent desktop AI assistant. "
+
     prompt = (
-        "You are Hunti, a highly intelligent desktop AI assistant. "
+        f"{context}"
         "Analyze the user's request and provide a helpful, concise, and professional response. "
+        "If the user asks about our services, pricing, or what we do, use the business context above to answer. "
         "Return ONLY valid JSON with keys: thought, text. "
         "'thought' should be a brief internal reasoning. 'text' is your final answer to the user. "
         f"User task: {user_task}."
