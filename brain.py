@@ -198,7 +198,7 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
     # Inject business context into the prompt
     if profile:
         context = (
-            f"You are the AI Sales Assistant for {profile['business_name']}, owned by {profile['owner']}. "
+            f"You are the AI Sales Assistant for {profile['business_name']}, founded by {profile['founder']}. "
             f"Your goal is to help potential clients understand our services and book a demo. "
             f"Here is our business context:\n"
             f"- Tagline: {profile['tagline']}\n"
