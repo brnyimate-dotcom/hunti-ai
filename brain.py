@@ -31,6 +31,8 @@ def load_business_profile() -> Dict[str, Any]:
             return json.load(f)
     except FileNotFoundError:
         return None
+    except json.JSONDecodeError:
+        return None
 
 
 def save_leads_to_db(leads: List[Dict[str, Any]]) -> int:
@@ -195,17 +197,18 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
     client = init_groq_client()
     profile = load_business_profile()
     
-    # Inject business context into the prompt
+    # Safely inject business context - uses .get() to prevent crashes
     if profile:
+        business_name = profile.get('business_name', 'Hunti AI Solutions')
+        founder = profile.get('founder', profile.get('owner', 'Máté Baranyai'))
+        
+        # Dump the entire profile as formatted text so AI gets all context
+        profile_text = json.dumps(profile, indent=2)
+        
         context = (
-            f"You are the AI Sales Assistant for {profile['business_name']}, founded by {profile['founder']}. "
+            f"You are the AI Sales Assistant for {business_name}, founded by {founder}. "
             f"Your goal is to help potential clients understand our services and book a demo. "
-            f"Here is our business context:\n"
-            f"- Tagline: {profile['tagline']}\n"
-            f"- Services: {', '.join(profile['services'])}\n"
-            f"- Target Audience: {profile['target_audience']}\n"
-            f"- Key Benefits: {', '.join(profile['unique_selling_points'])}\n"
-            f"- Current Offer: {profile['offer']}\n\n"
+            f"Here is our complete business context:\n\n{profile_text}\n\n"
         )
     else:
         context = "You are Hunti, a highly intelligent desktop AI assistant. "
