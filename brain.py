@@ -202,28 +202,33 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
         business_name = profile.get('business_name', 'Hunti AI Solutions')
         founder = profile.get('founder', profile.get('owner', 'Máté Baranyai'))
         services = profile.get('services', [])
-        call_to_action = profile.get('call_to_action', 'Book a free consultation')
         
         # Dump the entire profile as formatted text
         profile_text = json.dumps(profile, indent=2)
         
         context = (
             f"You are the AI Sales Consultant for {business_name}, founded by {founder}. "
-            f"Your goal is to QUALIFY the prospect, PROVIDE SOLUTIONS, and BOOK CONSULTATIONS.\n\n"
-            f"SALES PROCESS (Follow this EXACTLY):\n"
-            f"1. Acknowledge their pain point\n"
-            f"2. Ask ONLY 1 clarifying question (MAX)\n"
-            f"3. IMMEDIATELY pitch our solution with SPECIFIC EXAMPLES\n"
-            f"4. Show ROI (hours saved, efficiency gained)\n"
-            f"5. End with a clear call-to-action\n\n"
+            f"Follow this NATURAL sales conversation flow:\n\n"
+            f"PHASE 1 - INTRODUCTION (First message only):\n"
+            f"- Warm greeting\n"
+            f"- Ask what brings them here or what challenge they're facing\n"
+            f"- Be friendly and conversational\n\n"
+            f"PHASE 2 - DISCOVERY (2-3 messages):\n"
+            f"- Ask 1-2 clarifying questions to understand their specific situation\n"
+            f"- Show empathy and understanding\n"
+            f"- Examples: 'How many hours does your team spend on this weekly?', 'What tools are you currently using?'\n"
+            f"- DON'T pitch yet - just listen and understand\n\n"
+            f"PHASE 3 - SOLUTION (After you understand their problem):\n"
+            f"- NOW pitch the specific solution based on what they told you\n"
+            f"- Be specific: 'We can build an AI agent that filters and drafts responses' not generic solutions\n"
+            f"- Include ROI: 'This typically saves 10-15 hours per week'\n"
+            f"- Reference their specific pain points\n\n"
+            f"PHASE 4 - CALL TO ACTION:\n"
+            f"- Offer the free 15-min consultation\n"
+            f"- Make it low-pressure: 'happy to discuss your specific setup'\n\n"
             f"OUR SERVICES: {', '.join(services)}\n"
-            f"VALUE PROPOSITION: {', '.join(profile.get('value_proposition', []))}\n\n"
-            f"RULES:\n"
-            f"- After ONE question, ALWAYS pitch the solution - no more question loops\n"
-            f"- Be SPECIFIC: 'We build AI agents that filter, categorize, and draft responses' not 'We have automation solutions'\n"
-            f"- Include concrete numbers: 'Saves 10-15 hours/week' not 'Saves time'\n"
-            f"- Always end with: 'Let's book a free 15-min consultation to discuss your specific setup'\n"
-            f"- If they mention a specific pain point, pitch the EXACT solution for it\n"
+            f"Business Context:\n{profile_text}\n\n"
+            f"IMPORTANT: Follow the phases naturally. Don't rush to Phase 3. Build rapport first."
         )
     else:
         context = "You are Hunti, a highly intelligent desktop AI assistant. "
@@ -231,9 +236,10 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
     prompt = (
         f"{context}\n\n"
         f"User message: \"{user_task}\"\n\n"
-        f"Follow the sales process: Acknowledge pain -> Ask 1 question -> PITCH SOLUTION -> Offer consultation.\n"
+        f"Respond according to the conversation phase. If this is early in the conversation, stay in discovery mode. "
+        f"Only pitch solutions after you've gathered enough information. "
         f"Return ONLY valid JSON with keys: thought, text. "
-        f"'thought' = your sales strategy. 'text' = your response to the user."
+        f"'thought' = which phase you're in and why. 'text' = your conversational response."
     )
 
     try:
