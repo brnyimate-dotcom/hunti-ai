@@ -192,60 +192,49 @@ def log_email_sent(pitch_id: int, recipient_email: str, subject: str) -> None:
     conn.close()
 
 
-def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
-    """Query GROQ text model to act as a consultative sales assistant."""
+def ask_assistant(user_task: str, chat_history: list = None, temperature: float = 0.2) -> Dict[str, Any]:
+    """Query GROQ text model to act as a consultative sales assistant with memory."""
     client = init_groq_client()
     profile = load_business_profile()
     
-    # Safely inject business context
     if profile:
         business_name = profile.get('business_name', 'Hunti AI Solutions')
         founder = profile.get('founder', profile.get('owner', 'Máté Baranyai'))
         services = profile.get('services', [])
-        
-        # Dump the entire profile as formatted text
         profile_text = json.dumps(profile, indent=2)
         
         context = (
             f"You are the AI Sales Consultant for {business_name}, founded by {founder}. "
             f"Follow this NATURAL sales conversation flow:\n\n"
-            f"PHASE 1 - INTRODUCTION (First message only):\n"
-            f"- Warm greeting\n"
-            f"- Ask what brings them here or what challenge they're facing\n"
-            f"- Be friendly and conversational\n\n"
-            f"PHASE 2 - DISCOVERY (2-3 messages):\n"
-            f"- Ask 1-2 clarifying questions to understand their specific situation\n"
-            f"- Show empathy and understanding\n"
-            f"- Examples: 'How many hours does your team spend on this weekly?', 'What tools are you currently using?'\n"
-            f"- DON'T pitch yet - just listen and understand\n\n"
-            f"PHASE 3 - SOLUTION (After you understand their problem):\n"
-            f"- NOW pitch the specific solution based on what they told you\n"
-            f"- Be specific: 'We can build an AI agent that filters and drafts responses' not generic solutions\n"
-            f"- Include ROI: 'This typically saves 10-15 hours per week'\n"
-            f"- Reference their specific pain points\n\n"
-            f"PHASE 4 - CALL TO ACTION:\n"
-            f"- Offer the free 15-min consultation\n"
-            f"- Make it low-pressure: 'happy to discuss your specific setup'\n\n"
+            f"PHASE 1 - INTRODUCTION: Warm greeting, ask what challenge they're facing.\n"
+            f"PHASE 2 - DISCOVERY: Ask 1-2 clarifying questions to understand their situation. Show empathy.\n"
+            f"PHASE 3 - SOLUTION: After understanding the problem, pitch the specific solution based on what they told you. Be specific and include ROI (e.g., 'saves 10-15 hours/week').\n"
+            f"PHASE 4 - CALL TO ACTION: Offer a free 15-min consultation naturally.\n\n"
             f"OUR SERVICES: {', '.join(services)}\n"
             f"Business Context:\n{profile_text}\n\n"
-            f"IMPORTANT: Follow the phases naturally. Don't rush to Phase 3. Build rapport first."
+            f"CRITICAL RULES:\n"
+            f"1. READ THE CONVERSATION HISTORY. If the user just answered your question, DO NOT ask it again.\n"
+            f"2. If they answer your discovery question, IMMEDIATELY move to PHASE 3 (Solution).\n"
+            f"3. Be specific: 'We can build an AI agent that drafts responses to customer inquiries' not generic fluff.\n"
+            f"4. Never restart the conversation with 'Hi there' if you are already talking."
         )
     else:
-        context = "You are Hunti, a highly intelligent desktop AI assistant. "
+        context = "You are Hunti, a highly intelligent desktop AI assistant."
 
-    prompt = (
-        f"{context}\n\n"
-        f"User message: \"{user_task}\"\n\n"
-        f"Respond according to the conversation phase. If this is early in the conversation, stay in discovery mode. "
-        f"Only pitch solutions after you've gathered enough information. "
-        f"Return ONLY valid JSON with keys: thought, text. "
-        f"'thought' = which phase you're in and why. 'text' = your conversational response."
-    )
+    # Build messages for Groq, including history
+    messages = [{"role": "system", "content": context}]
+    
+    if chat_history:
+        for msg in chat_history:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+    
+    # Add the latest user message
+    messages.append({"role": "user", "content": user_task})
 
     try:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile", 
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,
             temperature=max(0.0, min(1.0, temperature)),
             max_tokens=600,
         )

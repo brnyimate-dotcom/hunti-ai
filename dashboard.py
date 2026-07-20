@@ -177,8 +177,8 @@ with tab_chat:
         with st.chat_message("assistant"):
             with st.spinner("Hunti is thinking..."):
                 try:
-                    # FIXED: Removed the empty string argument to match the new text-only brain.py
-                    result = ask_assistant(prompt, temperature=0.7)
+                    # FIXED: Pass chat_history so Hunti remembers the conversation and doesn't get amnesia!
+                    result = ask_assistant(prompt, chat_history=st.session_state.chat_history, temperature=0.7)
                     response_text = result.get('text', 'Task processed successfully!')
                     st.markdown(response_text)
                     st.session_state.chat_history.append({"role": "assistant", "content": response_text})
