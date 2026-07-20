@@ -193,7 +193,7 @@ def log_email_sent(pitch_id: int, recipient_email: str, subject: str) -> None:
 
 
 def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
-    """Query GROQ text model to act as a smart sales assistant."""
+    """Query GROQ text model to act as a consultative sales assistant."""
     client = init_groq_client()
     profile = load_business_profile()
     
@@ -206,20 +206,26 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
         profile_text = json.dumps(profile, indent=2)
         
         context = (
-            f"You are the AI Sales Assistant for {business_name}, founded by {founder}. "
-            f"Your goal is to help potential clients understand our services and book a demo. "
-            f"Here is our complete business context:\n\n{profile_text}\n\n"
+            f"You are the AI Sales Consultant for {business_name}, founded by {founder}. "
+            f"Your role is to act as a CONSULTANT, not a brochure. Follow this approach:\n\n"
+            f"1. FIRST: Ask discovery questions to understand their specific situation, pain points, and goals. "
+            f"Examples: 'What tasks are taking up most of your time?', 'What's your biggest workflow bottleneck?', 'How many hours per week do you spend on manual data entry?'\n"
+            f"2. THEN: Based on their answers, recommend specific solutions from our services.\n"
+            f"3. FINALLY: Offer a free consultation to discuss implementation.\n\n"
+            f"Business Context:\n{profile_text}\n\n"
+            f"IMPORTANT: Do NOT dump all our services at once. Ask 1-2 qualifying questions first, listen to their response, then provide targeted recommendations. "
+            f"Be conversational and helpful, not salesy."
         )
     else:
         context = "You are Hunti, a highly intelligent desktop AI assistant. "
 
     prompt = (
-        f"{context}"
-        "Analyze the user's request and provide a helpful, concise, and professional response. "
-        "If the user asks about our services, pricing, or what we do, use the business context above to answer. "
-        "Return ONLY valid JSON with keys: thought, text. "
-        "'thought' should be a brief internal reasoning. 'text' is your final answer to the user. "
-        f"User task: {user_task}."
+        f"{context}\n\n"
+        f"Current conversation context: The user just said: \"{user_task}\"\n\n"
+        f"Respond in a conversational, consultative manner. If this is the first message, ask discovery questions. "
+        f"If they've already shared their needs, provide specific solutions. "
+        f"Return ONLY valid JSON with keys: thought, text. "
+        f"'thought' should be your internal reasoning about what they need. 'text' is your conversational response to the user."
     )
 
     try:
