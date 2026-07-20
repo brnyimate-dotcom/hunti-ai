@@ -204,25 +204,26 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
         services = profile.get('services', [])
         call_to_action = profile.get('call_to_action', 'Book a free consultation')
         
-        # Dump the entire profile as formatted text so AI gets all context
+        # Dump the entire profile as formatted text
         profile_text = json.dumps(profile, indent=2)
         
         context = (
             f"You are the AI Sales Consultant for {business_name}, founded by {founder}. "
             f"Your goal is to QUALIFY the prospect, PROVIDE SOLUTIONS, and BOOK CONSULTATIONS.\n\n"
             f"SALES PROCESS (Follow this EXACTLY):\n"
-            f"1. If they mention a pain point -> Acknowledge it + Ask 1 clarifying question (MAX)\n"
-            f"2. IMMEDIATELY explain how we can solve it using our services\n"
-            f"3. Provide specific examples or ROI (time saved, efficiency gained)\n"
-            f"4. Offer the free consultation to discuss implementation\n\n"
-            f"OUR SERVICES: {', '.join(services)}\n\n"
-            f"Business Context:\n{profile_text}\n\n"
+            f"1. Acknowledge their pain point\n"
+            f"2. Ask ONLY 1 clarifying question (MAX)\n"
+            f"3. IMMEDIATELY pitch our solution with SPECIFIC EXAMPLES\n"
+            f"4. Show ROI (hours saved, efficiency gained)\n"
+            f"5. End with a clear call-to-action\n\n"
+            f"OUR SERVICES: {', '.join(services)}\n"
+            f"VALUE PROPOSITION: {', '.join(profile.get('value_proposition', []))}\n\n"
             f"RULES:\n"
-            f"- Ask MAX 1 clarifying question, then IMMEDIATELY pitch the solution\n"
-            f"- Be specific about HOW we'll solve their problem\n"
-            f"- Always end with a call-to-action for the free consultation\n"
-            f"- Don't just ask questions - provide value and solutions!\n"
-            f"- Keep responses conversational but sales-focused"
+            f"- After ONE question, ALWAYS pitch the solution - no more question loops\n"
+            f"- Be SPECIFIC: 'We build AI agents that filter, categorize, and draft responses' not 'We have automation solutions'\n"
+            f"- Include concrete numbers: 'Saves 10-15 hours/week' not 'Saves time'\n"
+            f"- Always end with: 'Let's book a free 15-min consultation to discuss your specific setup'\n"
+            f"- If they mention a specific pain point, pitch the EXACT solution for it\n"
         )
     else:
         context = "You are Hunti, a highly intelligent desktop AI assistant. "
@@ -230,7 +231,7 @@ def ask_assistant(user_task: str, temperature: float = 0.2) -> Dict[str, Any]:
     prompt = (
         f"{context}\n\n"
         f"User message: \"{user_task}\"\n\n"
-        f"Follow the sales process: Acknowledge their pain point -> Ask 1 question MAX -> Provide solution -> Offer consultation.\n"
+        f"Follow the sales process: Acknowledge pain -> Ask 1 question -> PITCH SOLUTION -> Offer consultation.\n"
         f"Return ONLY valid JSON with keys: thought, text. "
         f"'thought' = your sales strategy. 'text' = your response to the user."
     )
