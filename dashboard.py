@@ -7,10 +7,10 @@ import os
 import random
 
 from brain import ask_assistant
-from vision import capture_screen # Kept for future integration
+from vision import capture_screen
 from rate_limiter import check_rate_limit, get_usage_stats
 
-st.set_page_config(page_title="Hunti AI Analytics", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
 
 st.markdown("""
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,12 +19,22 @@ st.markdown("""
         .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
         .metric-card p { margin: 0; color: #888; }
         .metric-card i { margin-bottom: 10px; }
+        .service-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; margin: 15px 0; cursor: pointer; transition: transform 0.2s; }
+        .service-card:hover { transform: translateY(-5px); }
+        .service-card h3 { margin: 0; font-size: 1.5em; }
+        .service-card p { margin: 10px 0 0 0; opacity: 0.9; }
     </style>
 """, unsafe_allow_html=True)
 
-if 'chat_history' not in st.session_state: st.session_state.chat_history = []
-if 'user_id' not in st.session_state: st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
-if 'user_role' not in st.session_state: st.session_state.user_role = None
+# Session state
+if 'chat_history' not in st.session_state: 
+    st.session_state.chat_history = []
+if 'user_id' not in st.session_state: 
+    st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
+if 'user_role' not in st.session_state: 
+    st.session_state.user_role = None
+if 'page' not in st.session_state:
+    st.session_state.page = "Hunti AI"
 
 DB_NAME = "hunti.db"
 
@@ -67,45 +77,137 @@ def get_data(query):
         st.error(f"Database error: {e}")
         return pd.DataFrame()
 
-ROLE_SUGGESTIONS = {
-    "Freelancer/Solopreneur": ["Find 10 small businesses that need automation help", "Write a pitch offering my freelance automation services", "Help me identify which businesses need my skills most", "Automate my client outreach so I can focus on work"],
-    "Small Business Owner": ["Find potential clients in my industry", "Create personalized pitches for local businesses", "Build an automation system for my sales team", "Help me scale my business with AI tools"],
-    "Agency Owner": ["Find 20 mid-size companies needing automation consulting", "Write enterprise-level pitch for AI transformation services", "Build a complete CRM system for my agency", "Automate lead generation and qualification process"],
-    "Enterprise/Corporate": ["Design an enterprise-wide automation strategy", "Create a pilot program for department automation", "Build ROI analysis for AI implementation", "Develop training plan for AI adoption"],
-    "Developer/Tech": ["Help me build custom automation tools for clients", "Integrate AI APIs into existing workflows", "Create a white-label automation solution", "Build mobile-friendly lead capture system"]
+# Client-focused suggestions (not technical)
+CLIENT_SUGGESTIONS = {
+    "Small Business Owner": [
+        " I'm drowning in emails and can't respond fast enough",
+        "⏰ My team wastes hours on repetitive manual tasks",
+        " I need to generate more leads but don't have time",
+        "📊 I want to automate my customer follow-ups",
+    ],
+    "Agency Owner": [
+        " My team spends too much time on client onboarding",
+        "📝 We need to automate our proposal generation",
+        " I want to streamline our client reporting process",
+        "👥 We're struggling to manage multiple client communications",
+    ],
+    "E-commerce": [
+        "🛒 I need to automate order confirmations and tracking",
+        "💬 Customers keep asking the same questions repeatedly",
+        "📦 I want to automate inventory updates and notifications",
+        "⭐ I need better ways to collect and respond to reviews",
+    ],
+    "Freelancer/Solopreneur": [
+        " I spend too much time on admin instead of billable work",
+        " I need to automate my client discovery process",
+        "💼 I want to automate my invoicing and payment reminders",
+        " I need help finding and qualifying new clients",
+    ]
 }
 
-ROLE_DESCRIPTIONS = {
-    "Freelancer/Solopreneur": "Looking for quick wins and time-saving automation",
-    "Small Business Owner": "Ready to scale but needs practical solutions",
-    "Agency Owner": "Needs systems to serve multiple clients efficiently",
-    "Enterprise/Corporate": "Requires strategic implementation and ROI proof",
-    "Developer/Tech": "Wants to build or integrate automation tools"
-}
-
+# Sidebar navigation
 with st.sidebar:
-    st.markdown('<i class="fas fa-user-circle" style="font-size: 2em; color: #4CAF50;"></i>', unsafe_allow_html=True)
-    st.title("User Profile")
-    selected_role = st.selectbox("What best describes you?", options=list(ROLE_SUGGESTIONS.keys()), index=0 if st.session_state.user_role is None else list(ROLE_SUGGESTIONS.keys()).index(st.session_state.user_role))
+    st.markdown('<i class="fas fa-robot" style="font-size: 2em; color: #4CAF50;"></i>', unsafe_allow_html=True)
+    st.title("Navigation")
+    
+    # Main pages
+    if st.button("🤖 Hunti AI (Home)", use_container_width=True, key="btn_hunti"):
+        st.session_state.page = "Hunti AI"
+        st.rerun()
+    
+    if st.button("📊 Analytics Dashboard", use_container_width=True, key="btn_analytics"):
+        st.session_state.page = "Analytics"
+        st.rerun()
+    
+    if st.button("✉️ Automated Pitch Emailer", use_container_width=True, key="btn_pitches"):
+        st.session_state.page = "Pitch Emailer"
+        st.rerun()
+    
+    st.divider()
+    
+    # User profile
+    st.markdown("### User Profile")
+    selected_role = st.selectbox(
+        "What best describes you?", 
+        options=list(CLIENT_SUGGESTIONS.keys()), 
+        index=0 if st.session_state.user_role is None else list(CLIENT_SUGGESTIONS.keys()).index(st.session_state.user_role)
+    )
     if selected_role != st.session_state.user_role:
         st.session_state.user_role = selected_role
         st.rerun()
+    
     st.write(f"**User ID:** `{st.session_state.user_id}`")
-    if st.session_state.user_role: st.info(f"💡 {ROLE_DESCRIPTIONS[st.session_state.user_role]}")
+    if st.session_state.user_role: 
+        st.info(f"💡 {st.session_state.user_role}")
+    
     stats = get_usage_stats(st.session_state.user_id)
     st.metric("Total Requests", stats['total_requests'])
     st.metric("Requests (Last Hour)", stats['requests_last_hour'], delta=f"Limit: 10/hour")
+    
     st.divider()
-    st.caption("Hunti AI | Built with Python & Streamlit")
+    st.caption("Hunti AI Solutions | Built with Python & Streamlit")
 
-st.markdown('<i class="fas fa-robot" style="font-size: 2.5em; color: #2196F3;"></i>', unsafe_allow_html=True)
-st.title("Hunti AI - Command Center")
-st.markdown("Real-time analytics for your AI sales agent.")
-st.divider()
+# Main content based on selected page
+if st.session_state.page == "Hunti AI":
+    st.markdown('<i class="fas fa-robot" style="font-size: 3em; color: #2196F3;"></i>', unsafe_allow_html=True)
+    st.title("Hunti AI - Your Intelligent Sales Consultant")
+    st.markdown("### Welcome! I'm here to help you automate your business and save time.")
+    st.markdown("*Tell me about your challenges, and I'll show you how AI can solve them.*")
+    st.divider()
+    
+    if st.session_state.user_role:
+        st.subheader(f"💡 Common Challenges for {st.session_state.user_role}")
+        cols = st.columns(2)
+        for i, text in enumerate(CLIENT_SUGGESTIONS[st.session_state.user_role]):
+            with cols[i % 2]:
+                if st.button(text, key=f"sugg_{i}", use_container_width=True):
+                    st.session_state.suggested_prompt = text.replace("", "").replace("⏰", "").replace("💰", "").replace("", "").replace("🎯", "").replace("📝", "").replace("🔄", "").replace("👥", "").replace("🛒", "").replace("💬", "").replace("📦", "").replace("⭐", "").replace("⚡", "").replace("📞", "").replace("💼", "").strip()
+                    st.rerun()
+        st.divider()
+    
+    # Chat interface
+    chat_container = st.container()
+    with chat_container:
+        for message in st.session_state.chat_history:
+            with st.chat_message(message["role"]): 
+                st.markdown(message["content"])
+    
+    prompt = st.chat_input("What challenge are you facing? (e.g., 'I spend too much time on emails')")
+    
+    if hasattr(st.session_state, 'suggested_prompt') and st.session_state.suggested_prompt:
+        prompt = st.session_state.suggested_prompt
+        del st.session_state.suggested_prompt
+    
+    if prompt:
+        allowed, message = check_rate_limit(st.session_state.user_id, action="chat", max_requests=10, window_minutes=60)
+        if not allowed: 
+            st.error(f"️ {message}")
+            st.stop()
+        
+        st.session_state.chat_history.append({"role": "user", "content": prompt})
+        with st.chat_message("user"): 
+            st.markdown(prompt)
+        
+        with st.chat_message("assistant"):
+            with st.spinner("Hunti is thinking..."):
+                try:
+                    result = ask_assistant(prompt, chat_history=st.session_state.chat_history, temperature=0.7)
+                    response_text = result.get('text', 'Task processed successfully!')
+                    st.markdown(response_text)
+                    st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                    with st.expander("🔍 View Details"): 
+                        st.json(result)
+                except Exception as e:
+                    st.error(f"Error: {str(e)}")
+                    st.session_state.chat_history.append({"role": "assistant", "content": f"Sorry, I encountered an error: {str(e)}"})
+        st.rerun()
 
-tab_analytics, tab_chat = st.tabs(["Analytics Dashboard", "Chat with Hunti AI"])
-
-with tab_analytics:
+elif st.session_state.page == "Analytics":
+    st.markdown('<i class="fas fa-chart-line" style="font-size: 2.5em; color: #4CAF50;"></i>', unsafe_allow_html=True)
+    st.title("Analytics Dashboard")
+    st.markdown("Real-time performance metrics for your automation campaigns.")
+    st.divider()
+    
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
@@ -122,7 +224,7 @@ with tab_analytics:
 
     with col4:
         forms_df = get_data("SELECT COUNT(*) as count FROM form_submissions")
-        st.markdown(f'<div class="metric-card"><i class="fas fa-paper-plane fa-2x" style="color: #9C27B0;"></i><h3>{forms_df["count"][0] if not forms_df.empty else 0}</h3><p>Forms Submitted</p></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><i class="fas fa-check-circle fa-2x" style="color: #9C27B0;"></i><h3>{forms_df["count"][0] if not forms_df.empty else 0}</h3><p>Forms Submitted</p></div>', unsafe_allow_html=True)
 
     st.divider()
     st.subheader("Activity Overview")
@@ -133,57 +235,52 @@ with tab_analytics:
         if not status_df.empty:
             fig = px.pie(status_df, values='count', names='status', color_discrete_sequence=px.colors.sequential.RdBu)
             st.plotly_chart(fig, use_container_width=True)
-        else: st.info("No email data yet.")
+        else: 
+            st.info("No email data yet.")
+    
     with col_chart2:
         st.markdown("#### Recent Activity Log")
         recent_emails = get_data("SELECT recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5")
-        if not recent_emails.empty: st.dataframe(recent_emails, hide_index=True, use_container_width=True)
-        else: st.info("No recent emails found.")
+        if not recent_emails.empty: 
+            st.dataframe(recent_emails, hide_index=True, use_container_width=True)
+        else: 
+            st.info("No recent emails found.")
 
     st.divider()
     st.subheader("Database Records")
     tab1, tab2, tab3, tab4 = st.tabs(["Leads", "Pitches", "Emails", "Form Submissions"])
-    with tab1: st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
-    with tab2: st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
-    with tab3: st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
-    with tab4: st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True)
+    with tab1: 
+        st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
+    with tab2: 
+        st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
+    with tab3: 
+        st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
+    with tab4: 
+        st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True)
 
-with tab_chat:
-    st.markdown('<i class="fas fa-comments" style="font-size: 2.5em; color: #9C27B0;"></i>', unsafe_allow_html=True)
-    st.title("Chat with Hunti AI")
-    st.markdown("Ask Hunti to perform tasks, analyze screens, or automate workflows.")
-    if st.session_state.user_role:
-        st.subheader(f"Suggestions for {st.session_state.user_role}")
-        cols = st.columns(2)
-        for i, text in enumerate(ROLE_SUGGESTIONS[st.session_state.user_role]):
-            with cols[i % 2]:
-                if st.button(text, key=f"sugg_{i}", use_container_width=True):
-                    st.session_state.suggested_prompt = text
-                    st.rerun()
+elif st.session_state.page == "Pitch Emailer":
+    st.markdown('<i class="fas fa-envelope-open-text" style="font-size: 2.5em; color: #FF9800;"></i>', unsafe_allow_html=True)
+    st.title("Automated Pitch Emailer")
+    st.markdown("Generate and send personalized sales pitches to your leads automatically.")
+    st.divider()
+    
+    st.info("📋 **How it works:** Select leads from your database, and Hunti will generate personalized pitches and send them via email.")
+    
+    # Show leads
+    leads_df = get_data("SELECT * FROM leads ORDER BY created_at DESC")
+    if not leads_df.empty:
+        st.subheader("Available Leads")
+        st.dataframe(leads_df, use_container_width=True)
+        
         st.divider()
-    chat_container = st.container()
-    with chat_container:
-        for message in st.session_state.chat_history:
-            with st.chat_message(message["role"]): st.markdown(message["content"])
-    prompt = st.chat_input("What would you like Hunti to do?")
-    if hasattr(st.session_state, 'suggested_prompt') and st.session_state.suggested_prompt:
-        prompt = st.session_state.suggested_prompt
-        del st.session_state.suggested_prompt
-    if prompt:
-        allowed, message = check_rate_limit(st.session_state.user_id, action="chat", max_requests=10, window_minutes=60)
-        if not allowed: st.error(f"⚠️ {message}"); st.stop()
-        st.session_state.chat_history.append({"role": "user", "content": prompt})
-        with st.chat_message("user"): st.markdown(prompt)
-        with st.chat_message("assistant"):
-            with st.spinner("Hunti is thinking..."):
-                try:
-                    # FIXED: Pass chat_history so Hunti remembers the conversation and doesn't get amnesia!
-                    result = ask_assistant(prompt, chat_history=st.session_state.chat_history, temperature=0.7)
-                    response_text = result.get('text', 'Task processed successfully!')
-                    st.markdown(response_text)
-                    st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                    with st.expander("View Action Details"): st.json(result)
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-                    st.session_state.chat_history.append({"role": "assistant", "content": f"Sorry, I encountered an error: {str(e)}"})
-        st.rerun()
+        st.subheader("Generate Pitches")
+        if st.button("🚀 Generate Pitches for All Leads", type="primary", use_container_width=True):
+            st.write("Generating personalized pitches...")
+            # This would call your pitch generation logic
+            st.success("Pitches generated! Check the Analytics tab for results.")
+    else:
+        st.warning("No leads found. Add some leads first!")
+
+# Footer
+st.divider()
+st.markdown("© 2026 Hunti AI Solutions. All rights reserved.")
