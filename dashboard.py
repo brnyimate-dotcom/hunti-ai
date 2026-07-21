@@ -11,7 +11,7 @@ from rate_limiter import check_rate_limit, get_usage_stats
 
 st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
 
-# --- ENHANCED CSS WITH TRANSITIONS & ACTIVE STATES ---
+# --- ENHANCED CSS WITH SLIDE TRANSITIONS ---
 st.markdown("""
     <style>
         /* Base Styles */
@@ -19,66 +19,44 @@ st.markdown("""
         .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
         .metric-card p { margin: 0; color: #888; }
         
-        /* Navigation Button Active State */
-        div[data-testid="stHorizontalBlock"] button[kind="secondary"] { 
-            background-color: transparent !important; 
-            border: 1px solid #444 !important; 
-            color: #aaa !important;
-            transition: all 0.3s ease;
-        }
-        div[data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
-            border-color: #4CAF50 !important;
-            color: white !important;
-        }
-        /* We will inject the active class via JS later, but this sets the base style */
-        
-        /* Page Transition Container */
-        .page-container {
-            opacity: 1;
-            transform: translateX(0);
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
-            will-change: transform, opacity;
-        }
-        
-        /* Slide Animations */
-        .slide-out-left { transform: translateX(-50px); opacity: 0; }
-        .slide-out-right { transform: translateX(50px); opacity: 0; }
-        .slide-in-left { animation: slideInLeft 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        .slide-in-right { animation: slideInRight 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        
-        @keyframes slideInLeft { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* Fix button spacing in columns */
+        div[data-testid="column"] button { width: 100%; }
 
-        /* Loading Overlay (No sleep needed, just a quick flash) */
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
-        .loading-overlay.active { opacity: 1; pointer-events: all; }
-        .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #4CAF50; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        /* Page Transition Animations */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page-content {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(15, 15, 15, 0.95); 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 9999; 
+        }
+        .loading-spinner { 
+            border: 4px solid #333; border-top: 4px solid #4CAF50; 
+            border-radius: 50%; width: 60px; height: 60px; 
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-    
-    <script>
-        // Helper to highlight active nav button
-        function updateNavHighlight() {
-            const btns = document.querySelectorAll('div[data-testid="stHorizontalBlock"] button');
-            btns.forEach(btn => {
-                if(btn.innerText.includes("Hunti AI")) btn.dataset.page = "Hunti AI";
-                if(btn.innerText.includes("Analytics")) btn.dataset.page = "Analytics";
-                if(btn.innerText.includes("Pitch")) btn.dataset.page = "Pitch Emailer";
-                
-                // Check current Streamlit session state via a hidden marker or just rely on visual feedback
-                // Since we can't easily read session state in vanilla JS without custom components,
-                // we'll use a simpler approach: Style based on click event and let Streamlit handle the rest.
-            });
-        }
-        
-        // Run on load and after every rerun
-        window.addEventListener('load', updateNavHighlight);
-        const observer = new MutationObserver(updateNavHighlight);
-        observer.observe(document.body, { childList: true, subtree: true });
-    </script>
 """, unsafe_allow_html=True)
 
-# --- FULL TRANSLATION DICTIONARY (Same as before) ---
+# --- FULL TRANSLATION DICTIONARY (11 LANGUAGES) ---
 T = {
     "en": {
         "onboarding_title": "Welcome to Hunti AI Solutions", "onboarding_subtitle": "Let's personalize your automation dashboard in just a few seconds.",
@@ -344,9 +322,7 @@ if 'automation_goal' not in st.session_state: st.session_state.automation_goal =
 if 'chat_history' not in st.session_state: st.session_state.chat_history = []
 if 'user_id' not in st.session_state: st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
 if 'page' not in st.session_state: st.session_state.page = "Hunti AI"
-if 'target_page' not in st.session_state: st.session_state.target_page = None
 if 'dashboard_generating' not in st.session_state: st.session_state.dashboard_generating = False
-if 'prev_page' not in st.session_state: st.session_state.prev_page = "Hunti AI"
 
 DB_NAME = "hunti.db"
 
@@ -397,7 +373,7 @@ def get_data(query):
 # --- DASHBOARD GENERATION LOADING SCREEN ---
 if st.session_state.dashboard_generating:
     st.markdown("""
-        <div class="loading-overlay active">
+        <div class="loading-overlay">
             <div style="text-align: center;">
                 <div class="loading-spinner"></div>
                 <p style="color: white; margin-top: 20px; font-size: 20px; font-weight: 600;">""" + t("generating_dashboard") + """</p>
@@ -472,72 +448,46 @@ if not st.session_state.onboarding_complete:
             st.rerun()
     st.stop()
 
-# --- PAGE TRANSITION WITH SLIDE ANIMATION ---
-if st.session_state.target_page and st.session_state.target_page != st.session_state.page:
-    # Determine direction for animation
-    pages_order = ["Hunti AI", "Analytics", "Pitch Emailer"]
-    current_idx = pages_order.index(st.session_state.page) if st.session_state.page in pages_order else 0
-    target_idx = pages_order.index(st.session_state.target_page) if st.session_state.target_page in pages_order else 0
-    
-    anim_class = "slide-in-right" if target_idx > current_idx else "slide-in-left"
-    
-    # Inject animation class via JS for the next render
-    st.markdown(f"""
-        <script>
-            setTimeout(() => {{
-                const container = document.querySelector('.page-container');
-                if(container) {{
-                    container.classList.add('{anim_class}');
-                }}
-            }}, 10);
-        </script>
-    """, unsafe_allow_html=True)
-    
-    st.session_state.prev_page = st.session_state.page
-    st.session_state.page = st.session_state.target_page
-    st.session_state.target_page = None
-    st.rerun()
-
-# --- MAIN APP ---
-def navigate_to_page(page_name):
-    st.session_state.target_page = page_name
+# --- RELIABLE NAVIGATION (Fixes Double-Click & Highlighting) ---
+def set_page(page_name):
+    st.session_state.page = page_name
 
 col_nav1, col_nav2, col_nav3 = st.columns(3)
+
 with col_nav1:
     is_active = st.session_state.page == "Hunti AI"
-    btn_style = "background-color: #4CAF50 !important; color: white !important; border-color: #4CAF50 !important;" if is_active else ""
-    if st.button(t("nav_hunti"), use_container_width=True, key="btn_hunti", help=t("nav_hunti")): 
-        navigate_to_page("Hunti AI")
-    # Apply active style via JS since st.button doesn't support dynamic styling directly
-    st.markdown(f"""<script>
-        const huntiBtn = document.querySelector('button[key="btn_hunti"]') || Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes("{t("nav_hunti")}"));
-        if(huntiBtn) huntiBtn.style.cssText = "{btn_style}";
-    </script>""", unsafe_allow_html=True)
+    st.button(
+        t("nav_hunti"), 
+        use_container_width=True, 
+        type="primary" if is_active else "secondary",
+        on_click=set_page, 
+        args=("Hunti AI",)
+    )
 
 with col_nav2:
     is_active = st.session_state.page == "Analytics"
-    btn_style = "background-color: #4CAF50 !important; color: white !important; border-color: #4CAF50 !important;" if is_active else ""
-    if st.button(t("nav_analytics"), use_container_width=True, key="btn_analytics", help=t("nav_analytics")): 
-        navigate_to_page("Analytics")
-    st.markdown(f"""<script>
-        const analyticsBtn = document.querySelector('button[key="btn_analytics"]') || Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes("{t("nav_analytics")}"));
-        if(analyticsBtn) analyticsBtn.style.cssText = "{btn_style}";
-    </script>""", unsafe_allow_html=True)
+    st.button(
+        t("nav_analytics"), 
+        use_container_width=True, 
+        type="primary" if is_active else "secondary",
+        on_click=set_page, 
+        args=("Analytics",)
+    )
 
 with col_nav3:
     is_active = st.session_state.page == "Pitch Emailer"
-    btn_style = "background-color: #4CAF50 !important; color: white !important; border-color: #4CAF50 !important;" if is_active else ""
-    if st.button(t("nav_pitches"), use_container_width=True, key="btn_pitches", help=t("nav_pitches")): 
-        navigate_to_page("Pitch Emailer")
-    st.markdown(f"""<script>
-        const pitchBtn = document.querySelector('button[key="btn_pitches"]') || Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes("{t("nav_pitches")}"));
-        if(pitchBtn) pitchBtn.style.cssText = "{btn_style}";
-    </script>""", unsafe_allow_html=True)
+    st.button(
+        t("nav_pitches"), 
+        use_container_width=True, 
+        type="primary" if is_active else "secondary",
+        on_click=set_page, 
+        args=("Pitch Emailer",)
+    )
 
 st.divider()
 
-# Wrap main content in animated container
-st.markdown('<div class="page-container">', unsafe_allow_html=True)
+# --- MAIN CONTENT WRAPPER WITH ANIMATION ---
+st.markdown('<div class="page-content">', unsafe_allow_html=True)
 
 with st.sidebar:
     st.title(t("sidebar_title"))
@@ -553,6 +503,7 @@ with st.sidebar:
         st.session_state.business_type = 'Small Business Owner'
         st.session_state.team_size = 'Just me (Solo)'
         st.session_state.automation_goal = 'Generate more leads'
+        st.session_state.page = "Hunti AI"
         st.rerun()
     
     st.divider()
@@ -565,6 +516,7 @@ with st.sidebar:
     st.divider()
     st.caption("Hunti AI Solutions")
 
+# --- PAGE CONTENT ---
 if st.session_state.page == "Hunti AI":
     st.title(t("hunti_title"))
     st.markdown(t("hunti_welcome"))
@@ -695,7 +647,7 @@ elif st.session_state.page == "Pitch Emailer":
     else:
         st.warning(t("no_leads"))
 
-st.markdown('</div>', unsafe_allow_html=True) # Close page-container
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 st.markdown(t("footer"))
