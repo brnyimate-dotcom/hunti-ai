@@ -5,6 +5,7 @@ import plotly.express as px
 from datetime import datetime
 import os
 import random
+import time
 
 from brain import ask_assistant, build_pitches, get_pitches_from_db
 from rate_limiter import check_rate_limit, get_usage_stats
@@ -56,6 +57,8 @@ T = {
         "no_leads": "No leads found. Add some leads first!",
         "no_pitches": "No pitches generated yet. Click 'Generate Pitches' to create them.",
         "footer": "2026 Hunti AI Solutions. All rights reserved.",
+        "loading": "Loading...",
+        "generating": "Generating...",
         "suggestions": {
             "Small Business Owner": [
                 "I'm drowning in emails and can't respond fast enough",
@@ -126,6 +129,8 @@ T = {
         "no_leads": "Nincs találat. Először adjon hozzá lead-eket!",
         "no_pitches": "Még nincs generálva pitch. Kattintson a 'Pitch-ek Generálása' gombra.",
         "footer": "2026 Hunti AI Solutions. Minden jog fenntartva.",
+        "loading": "Betöltés...",
+        "generating": "Generálás...",
         "suggestions": {
             "Kisvállalkozás Tulajdonos": [
                 "Elnyomnak az emailek, nem tudunk elég gyorsan válaszolni",
@@ -168,6 +173,8 @@ if 'user_id' not in st.session_state:
     st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
 if 'page' not in st.session_state:
     st.session_state.page = "Hunti AI"
+if 'loading_page' not in st.session_state:
+    st.session_state.loading_page = False
 
 DB_NAME = "hunti.db"
 
@@ -220,66 +227,105 @@ def get_data(query):
 
 # --- ONBOARDING PAGE ---
 if not st.session_state.onboarding_complete:
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    # Use columns for centering
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.title(t("onboarding_title"))
         st.markdown(f"*{t('onboarding_subtitle')}*")
         st.divider()
         
+        # Store selections in temporary session state
+        if 'temp_lang' not in st.session_state:
+            st.session_state.temp_lang = 'en'
+        if 'temp_business' not in st.session_state:
+            st.session_state.temp_business = 'Small Business Owner'
+        
         lang_options = {"English": "en", "Magyar": "hu"}
-        selected_lang_name = st.selectbox(t("select_lang"), list(lang_options.keys()), index=0)
-        st.session_state.language = lang_options[selected_lang_name]
+        selected_lang_name = st.selectbox(
+            t("select_lang"), 
+            list(lang_options.keys()), 
+            index=1 if st.session_state.temp_lang == 'hu' else 0,
+            key="onboarding_lang"
+        )
+        st.session_state.temp_lang = lang_options[selected_lang_name]
+        
+        # Update language immediately for dynamic labels
+        st.session_state.language = st.session_state.temp_lang
         
         biz_options_en = ["Small Business Owner", "Agency Owner", "E-commerce", "Freelancer / Solopreneur"]
         biz_options_hu = ["Kisvállalkozás Tulajdonos", "Ügynökség Tulajdonos", "E-kereskedelem", "Szabadúszó / Egyéni Vállalkozó"]
         
         biz_options = biz_options_hu if st.session_state.language == 'hu' else biz_options_en
         
-        selected_biz = st.selectbox(t("select_business"), biz_options, index=0)
-        st.session_state.business_type = selected_biz
+        selected_biz = st.selectbox(
+            t("select_business"), 
+            biz_options, 
+            index=0,
+            key="onboarding_biz"
+        )
+        st.session_state.temp_business = selected_biz
         
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button(t("btn_start"), type="primary", use_container_width=True):
+        if st.button(t("btn_start"), type="primary", use_container_width=True, key="btn_onboard"):
+            # Set final values
+            st.session_state.language = st.session_state.temp_lang
+            st.session_state.business_type = st.session_state.temp_business
             st.session_state.onboarding_complete = True
+            # Clear temp values
+            if 'temp_lang' in st.session_state:
+                del st.session_state.temp_lang
+            if 'temp_business' in st.session_state:
+                del st.session_state.temp_business
             st.rerun()
     st.stop()
 
-# --- MAIN APP ---
+# --- MAIN APP WITH LOADING ---
+if st.session_state.loading_page:
+    with st.spinner(t("loading")):
+        time.sleep(0.3)  # Small delay to show loading
+        st.session_state.loading_page = False
+        st.rerun()
+
 st.markdown("""
     <style>
         .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
         .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
         .metric-card p { margin: 0; color: #888; }
+        .stButton>button { transition: all 0.2s; }
+        .stButton>button:active { transform: scale(0.98); }
     </style>
 """, unsafe_allow_html=True)
 
-# Top Navigation
+# Top Navigation with loading state
+def change_page(page_name):
+    st.session_state.loading_page = True
+    st.session_state.page = page_name
+    st.rerun()
+
 col_nav1, col_nav2, col_nav3 = st.columns(3)
 with col_nav1:
-    if st.button(t("nav_hunti"), use_container_width=True, key="btn_hunti"):
-        st.session_state.page = "Hunti AI"
-        st.rerun()
+    if st.button(t("nav_hunti"), use_container_width=True, key="btn_hunti", disabled=st.session_state.loading_page):
+        change_page("Hunti AI")
 with col_nav2:
-    if st.button(t("nav_analytics"), use_container_width=True, key="btn_analytics"):
-        st.session_state.page = "Analytics"
-        st.rerun()
+    if st.button(t("nav_analytics"), use_container_width=True, key="btn_analytics", disabled=st.session_state.loading_page):
+        change_page("Analytics")
 with col_nav3:
-    if st.button(t("nav_pitches"), use_container_width=True, key="btn_pitches"):
-        st.session_state.page = "Pitch Emailer"
-        st.rerun()
+    if st.button(t("nav_pitches"), use_container_width=True, key="btn_pitches", disabled=st.session_state.loading_page):
+        change_page("Pitch Emailer")
 
 st.divider()
 
 # Sidebar
 with st.sidebar:
     st.title(t("sidebar_title"))
-    st.write(f"**{t('select_business')[:-1] if t('select_business').endswith('?') else t('select_business')}:** {st.session_state.business_type}")
+    st.write(f"**Business Type:** {st.session_state.business_type}")
     st.write(f"User ID: `{st.session_state.user_id}`")
     
-    if st.button(t("reset_prefs"), use_container_width=True):
+    if st.button(t("reset_prefs"), use_container_width=True, key="btn_reset"):
         st.session_state.onboarding_complete = False
         st.session_state.chat_history = []
+        st.session_state.language = 'en'
+        st.session_state.business_type = 'Small Business Owner'
         st.rerun()
     
     st.divider()
@@ -407,9 +453,9 @@ elif st.session_state.page == "Pitch Emailer":
         st.divider()
         col1, col2 = st.columns(2)
         with col1:
-            if st.button(t("btn_gen_pitch"), type="primary", use_container_width=True):
+            if st.button(t("btn_gen_pitch"), type="primary", use_container_width=True, key="btn_generate_pitches"):
                 try:
-                    with st.spinner("Generating personalized pitches..."):
+                    with st.spinner(t("generating")):
                         if os.path.exists(DB_NAME):
                             pitches = build_pitches()
                             st.success(f"{t('success_gen')} ({len(pitches)})")
@@ -420,7 +466,7 @@ elif st.session_state.page == "Pitch Emailer":
                     st.error(f"Error: {str(e)}")
         
         with col2:
-            if st.button(t("btn_view_pitch"), use_container_width=True):
+            if st.button(t("btn_view_pitch"), use_container_width=True, key="btn_view_pitches"):
                 pitches_df = get_data("SELECT * FROM pitches ORDER BY created_at DESC")
                 if not pitches_df.empty:
                     st.dataframe(pitches_df, use_container_width=True)
