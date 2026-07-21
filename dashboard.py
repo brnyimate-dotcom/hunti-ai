@@ -6,32 +6,178 @@ from datetime import datetime
 import os
 import random
 
-from brain import ask_assistant
+from brain import ask_assistant, build_pitches, get_pitches_from_db
 from rate_limiter import check_rate_limit, get_usage_stats
-from brain import build_pitches, get_pitches_from_db
 
 st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
 
-st.markdown("""
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
-        .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
-        .metric-card p { margin: 0; color: #888; }
-    </style>
-""", unsafe_allow_html=True)
+# --- TRANSLATION DICTIONARY ---
+T = {
+    "en": {
+        "onboarding_title": "Welcome to Hunti AI Solutions",
+        "onboarding_subtitle": "Let's personalize your automation dashboard in just a few seconds.",
+        "select_lang": "Select your preferred language",
+        "select_business": "What best describes your business?",
+        "btn_start": "Generate My Dashboard",
+        "lang_en": "English",
+        "lang_hu": "Hungarian (Magyar)",
+        "biz_small": "Small Business Owner",
+        "biz_agency": "Agency Owner",
+        "biz_ecom": "E-commerce",
+        "biz_freelance": "Freelancer / Solopreneur",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Analytics Dashboard",
+        "nav_pitches": "Pitch Emailer",
+        "sidebar_title": "User Profile",
+        "reset_prefs": "Reset Preferences",
+        "total_req": "Total Requests",
+        "req_hour": "Requests (Last Hour)",
+        "hunti_title": "Hunti AI - Your Intelligent Sales Consultant",
+        "hunti_welcome": "Welcome! I'm here to help you automate your business and save time.",
+        "hunti_sub": "Tell me about your challenges, and I'll show you how AI can solve them.",
+        "hunti_input": "What challenge are you facing?",
+        "analytics_title": "Analytics Dashboard",
+        "analytics_sub": "Real-time performance metrics for your automation campaigns.",
+        "total_leads": "Total Leads",
+        "pitches_gen": "Pitches Generated",
+        "emails_sent": "Emails Sent",
+        "forms_sub": "Forms Submitted",
+        "activity_overview": "Activity Overview",
+        "email_status": "Email Delivery Status",
+        "recent_activity": "Recent Activity Log",
+        "db_records": "Database Records",
+        "pitch_title": "Automated Pitch Emailer",
+        "pitch_sub": "Generate and send personalized sales pitches to your leads automatically.",
+        "pitch_info": "How it works: Select leads from your database, and Hunti will generate personalized pitches and send them via email.",
+        "avail_leads": "Available Leads",
+        "btn_gen_pitch": "Generate Pitches",
+        "btn_view_pitch": "View Generated Pitches",
+        "success_gen": "Successfully generated pitches!",
+        "no_leads": "No leads found. Add some leads first!",
+        "no_pitches": "No pitches generated yet. Click 'Generate Pitches' to create them.",
+        "footer": "2026 Hunti AI Solutions. All rights reserved.",
+        "suggestions": {
+            "Small Business Owner": [
+                "I'm drowning in emails and can't respond fast enough",
+                "My team wastes hours on repetitive manual tasks",
+                "I need to generate more leads but don't have time",
+                "I want to automate my customer follow-ups"
+            ],
+            "Agency Owner": [
+                "My team spends too much time on client onboarding",
+                "We need to automate our proposal generation",
+                "I want to streamline our client reporting process",
+                "We're struggling to manage multiple client communications"
+            ],
+            "E-commerce": [
+                "I need to automate order confirmations and tracking",
+                "Customers keep asking the same questions repeatedly",
+                "I want to automate inventory updates and notifications",
+                "I need better ways to collect and respond to reviews"
+            ],
+            "Freelancer / Solopreneur": [
+                "I spend too much time on admin instead of billable work",
+                "I need to automate my client discovery process",
+                "I want to automate my invoicing and payment reminders",
+                "I need help finding and qualifying new clients"
+            ]
+        }
+    },
+    "hu": {
+        "onboarding_title": "Üdvözöljük a Hunti AI Solutions-nél",
+        "onboarding_subtitle": "Személyre szabjuk az automatizálási irányítópultját néhány másodperc alatt.",
+        "select_lang": "Válassza ki a preferált nyelvet",
+        "select_business": "Mi írja le legjobban a vállalkozását?",
+        "btn_start": "Irányítópult Generálása",
+        "lang_en": "Angol (English)",
+        "lang_hu": "Magyar",
+        "biz_small": "Kisvállalkozás Tulajdonos",
+        "biz_agency": "Ügynökség Tulajdonos",
+        "biz_ecom": "E-kereskedelem",
+        "biz_freelance": "Szabadúszó / Egyéni Vállalkozó",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Analitikai Irányítópult",
+        "nav_pitches": "Automatizált Pitch Küldő",
+        "sidebar_title": "Felhasználói Profil",
+        "reset_prefs": "Beállítások Visszaállítása",
+        "total_req": "Összes Kérés",
+        "req_hour": "Kérések (Utolsó Óra)",
+        "hunti_title": "Hunti AI - Az Ön Intelligens Értékesítési Tanácsadója",
+        "hunti_welcome": "Üdvözöljük! Segítek automatizálni a vállalkozását és időt spórolni.",
+        "hunti_sub": "Meséljen a kihívásairól, és megmutatom, hogyan oldhatja meg őket az AI.",
+        "hunti_input": "Milyen kihívással néz szembe?",
+        "analytics_title": "Analitikai Irányítópult",
+        "analytics_sub": "Valós idejű teljesítménymutatók az automatizálási kampányaihoz.",
+        "total_leads": "Összes Lead",
+        "pitches_gen": "Generált Pitch-ek",
+        "emails_sent": "Elküldött Emailek",
+        "forms_sub": "Kitöltött Űrlapok",
+        "activity_overview": "Tevékenység Áttekintése",
+        "email_status": "Email Kézbesítési Státusz",
+        "recent_activity": "Legutóbbi Tevékenységi Napló",
+        "db_records": "Adatbázis Rekordok",
+        "pitch_title": "Automatizált Pitch Küldő",
+        "pitch_sub": "Generáljon és küldjön személyre szabott értékesítési pitch-eket automatikusan.",
+        "pitch_info": "Hogyan működik: Válasszon lead-eket az adatbázisból, és a Hunti személyre szabott pitch-eket generál és küld el emailben.",
+        "avail_leads": "Elérhető Lead-ek",
+        "btn_gen_pitch": "Pitch-ek Generálása",
+        "btn_view_pitch": "Generált Pitch-ek Megtekintése",
+        "success_gen": "Sikeresen generálva!",
+        "no_leads": "Nincs találat. Először adjon hozzá lead-eket!",
+        "no_pitches": "Még nincs generálva pitch. Kattintson a 'Pitch-ek Generálása' gombra.",
+        "footer": "2026 Hunti AI Solutions. Minden jog fenntartva.",
+        "suggestions": {
+            "Kisvállalkozás Tulajdonos": [
+                "Elnyomnak az emailek, nem tudunk elég gyorsan válaszolni",
+                "A csapatom órákat pazarol ismétlődő manuális feladatokra",
+                "Több lead-re van szükségem, de nincs rá időm",
+                "Automatizálni szeretném az ügyfélkövetéseket"
+            ],
+            "Ügynökség Tulajdonos": [
+                "A csapatom túl sok időt tölt az ügyfélfelvétellel",
+                "Automatizálnunk kell az ajánlatkérés-generálást",
+                "Szeretném egyszerűsíteni az ügyféljelentési folyamatot",
+                "Küzdünk a több ügyfél kommunikációjának kezelésével"
+            ],
+            "E-kereskedelem": [
+                "Automatizálnom kell a rendelés visszaigazolásokat és nyomkövetést",
+                "Az ügyfelek folyamatosan ugyanazokat a kérdéseket teszik fel",
+                "Szeretném automatizálni a készletfrissítéseket és értesítéseket",
+                "Jobb módszereket keresek a vélemények gyűjtésére és kezelésére"
+            ],
+            "Szabadúszó / Egyéni Vállalkozó": [
+                "Túl sok időt töltök adminisztrációval a számlázható munka helyett",
+                "Automatizálnom kell az ügyfélfelderítési folyamatot",
+                "Szeretném automatizálni a számlázást és a fizetési emlékeztetőket",
+                "Segítségre van szükségem új ügyfelek megtalálásában és minősítésében"
+            ]
+        }
+    }
+}
 
-# Session state
+# --- SESSION STATE INITIALIZATION ---
+if 'onboarding_complete' not in st.session_state:
+    st.session_state.onboarding_complete = False
+if 'language' not in st.session_state:
+    st.session_state.language = 'en'
+if 'business_type' not in st.session_state:
+    st.session_state.business_type = 'Small Business Owner'
 if 'chat_history' not in st.session_state: 
     st.session_state.chat_history = []
 if 'user_id' not in st.session_state: 
     st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
-if 'user_role' not in st.session_state: 
-    st.session_state.user_role = None
 if 'page' not in st.session_state:
     st.session_state.page = "Hunti AI"
 
 DB_NAME = "hunti.db"
+
+def t(key):
+    """Helper function to get translation"""
+    keys = key.split('.')
+    val = T[st.session_state.language]
+    for k in keys:
+        val = val.get(k, key)
+    return val
 
 def get_data(query):
     use_demo = False
@@ -72,45 +218,54 @@ def get_data(query):
         st.error(f"Database error: {e}")
         return pd.DataFrame()
 
-CLIENT_SUGGESTIONS = {
-    "Small Business Owner": [
-        "I'm drowning in emails and can't respond fast enough",
-        "My team wastes hours on repetitive manual tasks",
-        "I need to generate more leads but don't have time",
-        "I want to automate my customer follow-ups",
-    ],
-    "Agency Owner": [
-        "My team spends too much time on client onboarding",
-        "We need to automate our proposal generation",
-        "I want to streamline our client reporting process",
-        "We're struggling to manage multiple client communications",
-    ],
-    "E-commerce": [
-        "I need to automate order confirmations and tracking",
-        "Customers keep asking the same questions repeatedly",
-        "I want to automate inventory updates and notifications",
-        "I need better ways to collect and respond to reviews",
-    ],
-    "Freelancer/Solopreneur": [
-        "I spend too much time on admin instead of billable work",
-        "I need to automate my client discovery process",
-        "I want to automate my invoicing and payment reminders",
-        "I need help finding and qualifying new clients",
-    ]
-}
+# --- ONBOARDING PAGE ---
+if not st.session_state.onboarding_complete:
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.title(t("onboarding_title"))
+        st.markdown(f"*{t('onboarding_subtitle')}*")
+        st.divider()
+        
+        lang_options = {"English": "en", "Magyar": "hu"}
+        selected_lang_name = st.selectbox(t("select_lang"), list(lang_options.keys()), index=0)
+        st.session_state.language = lang_options[selected_lang_name]
+        
+        biz_options_en = ["Small Business Owner", "Agency Owner", "E-commerce", "Freelancer / Solopreneur"]
+        biz_options_hu = ["Kisvállalkozás Tulajdonos", "Ügynökség Tulajdonos", "E-kereskedelem", "Szabadúszó / Egyéni Vállalkozó"]
+        
+        biz_options = biz_options_hu if st.session_state.language == 'hu' else biz_options_en
+        
+        selected_biz = st.selectbox(t("select_business"), biz_options, index=0)
+        st.session_state.business_type = selected_biz
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button(t("btn_start"), type="primary", use_container_width=True):
+            st.session_state.onboarding_complete = True
+            st.rerun()
+    st.stop()
+
+# --- MAIN APP ---
+st.markdown("""
+    <style>
+        .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
+        .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
+        .metric-card p { margin: 0; color: #888; }
+    </style>
+""", unsafe_allow_html=True)
 
 # Top Navigation
 col_nav1, col_nav2, col_nav3 = st.columns(3)
 with col_nav1:
-    if st.button("Hunti AI", use_container_width=True, key="btn_hunti"):
+    if st.button(t("nav_hunti"), use_container_width=True, key="btn_hunti"):
         st.session_state.page = "Hunti AI"
         st.rerun()
 with col_nav2:
-    if st.button("Analytics Dashboard", use_container_width=True, key="btn_analytics"):
+    if st.button(t("nav_analytics"), use_container_width=True, key="btn_analytics"):
         st.session_state.page = "Analytics"
         st.rerun()
 with col_nav3:
-    if st.button("Pitch Emailer", use_container_width=True, key="btn_pitches"):
+    if st.button(t("nav_pitches"), use_container_width=True, key="btn_pitches"):
         st.session_state.page = "Pitch Emailer"
         st.rerun()
 
@@ -118,41 +273,38 @@ st.divider()
 
 # Sidebar
 with st.sidebar:
-    st.title("User Profile")
-    selected_role = st.selectbox(
-        "What best describes you?", 
-        options=list(CLIENT_SUGGESTIONS.keys()), 
-        index=0 if st.session_state.user_role is None else list(CLIENT_SUGGESTIONS.keys()).index(st.session_state.user_role)
-    )
-    if selected_role != st.session_state.user_role:
-        st.session_state.user_role = selected_role
+    st.title(t("sidebar_title"))
+    st.write(f"**{t('select_business')[:-1] if t('select_business').endswith('?') else t('select_business')}:** {st.session_state.business_type}")
+    st.write(f"User ID: `{st.session_state.user_id}`")
+    
+    if st.button(t("reset_prefs"), use_container_width=True):
+        st.session_state.onboarding_complete = False
+        st.session_state.chat_history = []
         st.rerun()
     
-    st.write(f"User ID: `{st.session_state.user_id}`")
-    if st.session_state.user_role: 
-        st.info(st.session_state.user_role)
-    
+    st.divider()
     try:
         stats = get_usage_stats(st.session_state.user_id)
-        st.metric("Total Requests", stats['total_requests'])
-        st.metric("Requests (Last Hour)", stats['requests_last_hour'], delta="Limit: 10/hour")
+        st.metric(t("total_req"), stats['total_requests'])
+        st.metric(t("req_hour"), stats['requests_last_hour'], delta="Limit: 10/hour")
     except:
         pass
     
     st.divider()
     st.caption("Hunti AI Solutions")
 
-# Main content
+# Main content based on selected page
 if st.session_state.page == "Hunti AI":
-    st.title("Hunti AI - Your Intelligent Sales Consultant")
-    st.markdown("Welcome! I'm here to help you automate your business and save time.")
-    st.markdown("*Tell me about your challenges, and I'll show you how AI can solve them.*")
+    st.title(t("hunti_title"))
+    st.markdown(t("hunti_welcome"))
+    st.markdown(f"*{t('hunti_sub')}*")
     st.divider()
     
-    if st.session_state.user_role:
-        st.subheader(f"Common Challenges for {st.session_state.user_role}")
+    if st.session_state.business_type:
+        st.subheader(f"Common Challenges for {st.session_state.business_type}")
         cols = st.columns(2)
-        for i, text in enumerate(CLIENT_SUGGESTIONS[st.session_state.user_role]):
+        suggestions = t(f"suggestions.{st.session_state.business_type}")
+        for i, text in enumerate(suggestions):
             with cols[i % 2]:
                 if st.button(text, key=f"sugg_{i}", use_container_width=True):
                     st.session_state.suggested_prompt = text
@@ -165,7 +317,7 @@ if st.session_state.page == "Hunti AI":
             with st.chat_message(message["role"]): 
                 st.markdown(message["content"])
     
-    prompt = st.chat_input("What challenge are you facing?")
+    prompt = st.chat_input(t("hunti_input"))
     
     if hasattr(st.session_state, 'suggested_prompt') and st.session_state.suggested_prompt:
         prompt = st.session_state.suggested_prompt
@@ -194,33 +346,29 @@ if st.session_state.page == "Hunti AI":
         st.rerun()
 
 elif st.session_state.page == "Analytics":
-    st.title("Analytics Dashboard")
-    st.markdown("Real-time performance metrics for your automation campaigns.")
+    st.title(t("analytics_title"))
+    st.markdown(t("analytics_sub"))
     st.divider()
     
     col1, col2, col3, col4 = st.columns(4)
-
     with col1:
         leads_df = get_data("SELECT COUNT(*) as count FROM leads")
-        st.markdown(f'<div class="metric-card"><h3>{leads_df["count"][0] if not leads_df.empty else 0}</h3><p>Total Leads</p></div>', unsafe_allow_html=True)
-
+        st.markdown(f'<div class="metric-card"><h3>{leads_df["count"][0] if not leads_df.empty else 0}</h3><p>{t("total_leads")}</p></div>', unsafe_allow_html=True)
     with col2:
         pitches_df = get_data("SELECT COUNT(*) as count FROM pitches")
-        st.markdown(f'<div class="metric-card"><h3>{pitches_df["count"][0] if not pitches_df.empty else 0}</h3><p>Pitches Generated</p></div>', unsafe_allow_html=True)
-
+        st.markdown(f'<div class="metric-card"><h3>{pitches_df["count"][0] if not pitches_df.empty else 0}</h3><p>{t("pitches_gen")}</p></div>', unsafe_allow_html=True)
     with col3:
         emails_df = get_data("SELECT COUNT(*) as count FROM emails WHERE status='sent'")
-        st.markdown(f'<div class="metric-card"><h3>{emails_df["count"][0] if not emails_df.empty else 0}</h3><p>Emails Sent</p></div>', unsafe_allow_html=True)
-
+        st.markdown(f'<div class="metric-card"><h3>{emails_df["count"][0] if not emails_df.empty else 0}</h3><p>{t("emails_sent")}</p></div>', unsafe_allow_html=True)
     with col4:
         forms_df = get_data("SELECT COUNT(*) as count FROM form_submissions")
-        st.markdown(f'<div class="metric-card"><h3>{forms_df["count"][0] if not forms_df.empty else 0}</h3><p>Forms Submitted</p></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><h3>{forms_df["count"][0] if not forms_df.empty else 0}</h3><p>{t("forms_sub")}</p></div>', unsafe_allow_html=True)
 
     st.divider()
-    st.subheader("Activity Overview")
+    st.subheader(t("activity_overview"))
     col_chart1, col_chart2 = st.columns(2)
     with col_chart1:
-        st.markdown("#### Email Delivery Status")
+        st.markdown(f"#### {t('email_status')}")
         status_df = get_data("SELECT status, COUNT(*) as count FROM emails GROUP BY status")
         if not status_df.empty:
             fig = px.pie(status_df, values='count', names='status', color_discrete_sequence=px.colors.sequential.RdBu)
@@ -229,7 +377,7 @@ elif st.session_state.page == "Analytics":
             st.info("No email data yet.")
     
     with col_chart2:
-        st.markdown("#### Recent Activity Log")
+        st.markdown(f"#### {t('recent_activity')}")
         recent_emails = get_data("SELECT recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5")
         if not recent_emails.empty: 
             st.dataframe(recent_emails, hide_index=True, use_container_width=True)
@@ -237,55 +385,49 @@ elif st.session_state.page == "Analytics":
             st.info("No recent emails found.")
 
     st.divider()
-    st.subheader("Database Records")
-    tab1, tab2, tab3, tab4 = st.tabs(["Leads", "Pitches", "Emails", "Form Submissions"])
-    with tab1: 
-        st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
-    with tab2: 
-        st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
-    with tab3: 
-        st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
-    with tab4: 
-        st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True)
+    st.subheader(t("db_records"))
+    tab1, tab2, tab3, tab4 = st.tabs([t("total_leads"), t("pitches_gen"), t("emails_sent"), t("forms_sub")])
+    with tab1: st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
+    with tab2: st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
+    with tab3: st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
+    with tab4: st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True)
 
 elif st.session_state.page == "Pitch Emailer":
-    st.title("Automated Pitch Emailer")
-    st.markdown("Generate and send personalized sales pitches to your leads automatically.")
+    st.title(t("pitch_title"))
+    st.markdown(t("pitch_sub"))
     st.divider()
     
-    st.info("How it works: Select leads from your database, and Hunti will generate personalized pitches and send them via email.")
+    st.info(t("pitch_info"))
     
-    # Get leads using get_data which handles demo mode
     leads_df = get_data("SELECT * FROM leads ORDER BY created_at DESC")
     if not leads_df.empty:
-        st.subheader("Available Leads")
+        st.subheader(t("avail_leads"))
         st.dataframe(leads_df, use_container_width=True)
         
         st.divider()
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Generate Pitches", type="primary", use_container_width=True):
+            if st.button(t("btn_gen_pitch"), type="primary", use_container_width=True):
                 try:
                     with st.spinner("Generating personalized pitches..."):
-                        # For demo mode, just show success message
                         if os.path.exists(DB_NAME):
                             pitches = build_pitches()
-                            st.success(f"Successfully generated {len(pitches)} pitches!")
+                            st.success(f"{t('success_gen')} ({len(pitches)})")
                         else:
-                            st.success("Demo mode: 2 pitches generated for Acme Corp and Tech Solutions!")
+                            st.success(f"{t('success_gen')} (Demo Mode)")
                         st.rerun()
                 except Exception as e:
-                    st.error(f"Error generating pitches: {str(e)}")
+                    st.error(f"Error: {str(e)}")
         
         with col2:
-            if st.button("View Generated Pitches", use_container_width=True):
+            if st.button(t("btn_view_pitch"), use_container_width=True):
                 pitches_df = get_data("SELECT * FROM pitches ORDER BY created_at DESC")
                 if not pitches_df.empty:
                     st.dataframe(pitches_df, use_container_width=True)
                 else:
-                    st.info("No pitches generated yet. Click 'Generate Pitches' to create them.")
+                    st.info(t("no_pitches"))
     else:
-        st.warning("No leads found. Add some leads first!")
+        st.warning(t("no_leads"))
 
 st.divider()
-st.markdown("2026 Hunti AI Solutions. All rights reserved.")
+st.markdown(t("footer"))
