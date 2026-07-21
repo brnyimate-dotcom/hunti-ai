@@ -8,7 +8,7 @@ import random
 
 from brain import ask_assistant
 from rate_limiter import check_rate_limit, get_usage_stats
-from brain import build_pitches, get_pitches_from_db, get_all_leads_from_db
+from brain import build_pitches, get_pitches_from_db
 
 st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
 
@@ -18,11 +18,6 @@ st.markdown("""
         .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
         .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
         .metric-card p { margin: 0; color: #888; }
-        .metric-card i { margin-bottom: 10px; }
-        .top-nav { background-color: #1E1E1E; padding: 15px 30px; border-radius: 10px; margin-bottom: 30px; }
-        .nav-button { background-color: transparent; border: 2px solid #4CAF50; color: #4CAF50; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-right: 10px; transition: all 0.3s; }
-        .nav-button:hover { background-color: #4CAF50; color: white; }
-        .nav-button.active { background-color: #4CAF50; color: white; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -77,7 +72,6 @@ def get_data(query):
         st.error(f"Database error: {e}")
         return pd.DataFrame()
 
-# Client-focused suggestions
 CLIENT_SUGGESTIONS = {
     "Small Business Owner": [
         "I'm drowning in emails and can't respond fast enough",
@@ -106,14 +100,6 @@ CLIENT_SUGGESTIONS = {
 }
 
 # Top Navigation
-st.markdown("""
-    <div class="top-nav">
-        <button class="nav-button active" onclick="location.href='#'">Hunti AI</button>
-        <button class="nav-button" onclick="location.href='#'">Analytics</button>
-        <button class="nav-button" onclick="location.href='#'">Pitch Emailer</button>
-    </div>
-""", unsafe_allow_html=True)
-
 col_nav1, col_nav2, col_nav3 = st.columns(3)
 with col_nav1:
     if st.button("Hunti AI", use_container_width=True, key="btn_hunti"):
@@ -130,7 +116,7 @@ with col_nav3:
 
 st.divider()
 
-# Sidebar - User Profile only
+# Sidebar
 with st.sidebar:
     st.title("User Profile")
     selected_role = st.selectbox(
@@ -142,9 +128,9 @@ with st.sidebar:
         st.session_state.user_role = selected_role
         st.rerun()
     
-    st.write(f"**User ID:** `{st.session_state.user_id}`")
+    st.write(f"User ID: `{st.session_state.user_id}`")
     if st.session_state.user_role: 
-        st.info(f"{st.session_state.user_role}")
+        st.info(st.session_state.user_role)
     
     try:
         stats = get_usage_stats(st.session_state.user_id)
@@ -156,7 +142,7 @@ with st.sidebar:
     st.divider()
     st.caption("Hunti AI Solutions")
 
-# Main content based on selected page
+# Main content
 if st.session_state.page == "Hunti AI":
     st.title("Hunti AI - Your Intelligent Sales Consultant")
     st.markdown("Welcome! I'm here to help you automate your business and save time.")
@@ -173,7 +159,6 @@ if st.session_state.page == "Hunti AI":
                     st.rerun()
         st.divider()
     
-    # Chat interface
     chat_container = st.container()
     with chat_container:
         for message in st.session_state.chat_history:
@@ -270,7 +255,7 @@ elif st.session_state.page == "Pitch Emailer":
     
     st.info("How it works: Select leads from your database, and Hunti will generate personalized pitches and send them via email.")
     
-    # Show leads
+    # Get leads using get_data which handles demo mode
     leads_df = get_data("SELECT * FROM leads ORDER BY created_at DESC")
     if not leads_df.empty:
         st.subheader("Available Leads")
@@ -282,8 +267,12 @@ elif st.session_state.page == "Pitch Emailer":
             if st.button("Generate Pitches", type="primary", use_container_width=True):
                 try:
                     with st.spinner("Generating personalized pitches..."):
-                        pitches = build_pitches()
-                        st.success(f"Successfully generated {len(pitches)} pitches!")
+                        # For demo mode, just show success message
+                        if os.path.exists(DB_NAME):
+                            pitches = build_pitches()
+                            st.success(f"Successfully generated {len(pitches)} pitches!")
+                        else:
+                            st.success("Demo mode: 2 pitches generated for Acme Corp and Tech Solutions!")
                         st.rerun()
                 except Exception as e:
                     st.error(f"Error generating pitches: {str(e)}")
@@ -294,10 +283,9 @@ elif st.session_state.page == "Pitch Emailer":
                 if not pitches_df.empty:
                     st.dataframe(pitches_df, use_container_width=True)
                 else:
-                    st.info("No pitches generated yet.")
+                    st.info("No pitches generated yet. Click 'Generate Pitches' to create them.")
     else:
         st.warning("No leads found. Add some leads first!")
 
-# Footer
 st.divider()
 st.markdown("2026 Hunti AI Solutions. All rights reserved.")
