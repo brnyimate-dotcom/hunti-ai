@@ -5,6 +5,7 @@ import plotly.express as px
 from datetime import datetime
 import os
 import random
+import time
 
 from brain import ask_assistant, build_pitches, get_pitches_from_db
 from rate_limiter import check_rate_limit, get_usage_stats
@@ -347,9 +348,11 @@ if st.session_state.dashboard_generating:
             <div style="text-align: center;">
                 <div class="loading-spinner"></div>
                 <p style="color: white; margin-top: 20px; font-size: 20px; font-weight: 600;">""" + t("generating_dashboard") + """</p>
+                <p style="color: #aaa; margin-top: 10px;">Setting up your personalized experience...</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
+    time.sleep(0.5)
     st.session_state.dashboard_generating = False
     st.rerun()
 
@@ -429,6 +432,7 @@ if st.session_state.target_page and st.session_state.target_page != st.session_s
     """, unsafe_allow_html=True)
     st.session_state.page = st.session_state.target_page
     st.session_state.target_page = None
+    time.sleep(0.2)
     st.rerun()
 
 # --- MAIN APP ---
@@ -481,7 +485,6 @@ if st.session_state.page == "Hunti AI":
         st.subheader(f"Common Challenges for {st.session_state.business_type}")
         cols = st.columns(2)
         
-        # Safe suggestions lookup
         suggestions = t(f"suggestions.{st.session_state.business_type}")
         if not isinstance(suggestions, list):
             suggestions = T["en"]["suggestions"].get(st.session_state.business_type, ["Challenge 1", "Challenge 2", "Challenge 3", "Challenge 4"])
