@@ -10,7 +10,7 @@ import time
 from brain import ask_assistant, build_pitches, get_pitches_from_db
 from rate_limiter import check_rate_limit, get_usage_stats
 
-st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Hunti AI - Command Center", page_icon="", layout="wide")
 
 # --- CSS FOR LOADING OVERLAY ---
 st.markdown("""
@@ -28,7 +28,7 @@ st.markdown("""
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -55,10 +55,20 @@ T = {
         "onboarding_title": "Welcome to Hunti AI Solutions",
         "onboarding_subtitle": "Let's personalize your automation dashboard in just a few seconds.",
         "select_lang": "Select your preferred language",
+        "search_lang": "Search for your language...",
         "select_business": "What best describes your business?",
         "btn_start": "Generate My Dashboard",
         "lang_en": "English",
         "lang_hu": "Hungarian (Magyar)",
+        "lang_es": "Spanish (Español)",
+        "lang_fr": "French (Français)",
+        "lang_de": "German (Deutsch)",
+        "lang_it": "Italian (Italiano)",
+        "lang_pt": "Portuguese (Português)",
+        "lang_ru": "Russian (Русский)",
+        "lang_zh": "Chinese (中文)",
+        "lang_ja": "Japanese (日本語)",
+        "lang_ar": "Arabic (العربية)",
         "biz_small": "Small Business Owner",
         "biz_agency": "Agency Owner",
         "biz_ecom": "E-commerce",
@@ -95,6 +105,7 @@ T = {
         "no_pitches": "No pitches generated yet. Click 'Generate Pitches' to create them.",
         "footer": "2026 Hunti AI Solutions. All rights reserved.",
         "loading": "Loading...",
+        "generating_dashboard": "Generating your personalized dashboard...",
         "generating": "Generating...",
         "suggestions": {
             "Small Business Owner": [
@@ -127,10 +138,20 @@ T = {
         "onboarding_title": "Üdvözöljük a Hunti AI Solutions-nél",
         "onboarding_subtitle": "Személyre szabjuk az automatizálási irányítópultját néhány másodperc alatt.",
         "select_lang": "Válassza ki a preferált nyelvet",
+        "search_lang": "Nyelv keresése...",
         "select_business": "Mi írja le legjobban a vállalkozását?",
         "btn_start": "Irányítópult Generálása",
         "lang_en": "Angol (English)",
         "lang_hu": "Magyar",
+        "lang_es": "Spanyol (Español)",
+        "lang_fr": "Francia (Français)",
+        "lang_de": "Német (Deutsch)",
+        "lang_it": "Olasz (Italiano)",
+        "lang_pt": "Portugál (Português)",
+        "lang_ru": "Orosz (Русский)",
+        "lang_zh": "Kínai (中文)",
+        "lang_ja": "Japán (日本語)",
+        "lang_ar": "Arab (العربية)",
         "biz_small": "Kisvállalkozás Tulajdonos",
         "biz_agency": "Ügynökség Tulajdonos",
         "biz_ecom": "E-kereskedelem",
@@ -167,6 +188,7 @@ T = {
         "no_pitches": "Még nincs generálva pitch. Kattintson a 'Pitch-ek Generálása' gombra.",
         "footer": "2026 Hunti AI Solutions. Minden jog fenntartva.",
         "loading": "Betöltés...",
+        "generating_dashboard": "Az Ön személyre szabott irányítópultjának generálása...",
         "generating": "Generálás...",
         "suggestions": {
             "Kisvállalkozás Tulajdonos": [
@@ -194,8 +216,97 @@ T = {
                 "Segítségre van szükségem új ügyfelek megtalálásában és minősítésében"
             ]
         }
+    },
+    "es": {
+        "onboarding_title": "Bienvenido a Hunti AI Solutions",
+        "onboarding_subtitle": "Personalicemos su panel de automatización en unos segundos.",
+        "select_lang": "Seleccione su idioma preferido",
+        "search_lang": "Buscar idioma...",
+        "select_business": "¿Qué describe mejor su negocio?",
+        "btn_start": "Generar Mi Panel",
+        "lang_en": "Inglés (English)",
+        "lang_hu": "Húngaro (Magyar)",
+        "lang_es": "Español",
+        "lang_fr": "Francés (Français)",
+        "lang_de": "Alemán (Deutsch)",
+        "lang_it": "Italiano",
+        "lang_pt": "Portugués (Português)",
+        "lang_ru": "Ruso (Русский)",
+        "lang_zh": "Chino (中文)",
+        "lang_ja": "Japonés (日本語)",
+        "lang_ar": "Árabe (العربية)",
+        "biz_small": "Propietario de Pequeña Empresa",
+        "biz_agency": "Propietario de Agencia",
+        "biz_ecom": "Comercio Electrónico",
+        "biz_freelance": "Autónomo / Emprendedor",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Panel de Análisis",
+        "nav_pitches": "Emailer de Propuestas",
+        "sidebar_title": "Perfil de Usuario",
+        "reset_prefs": "Restablecer Preferencias",
+        "total_req": "Total de Solicitudes",
+        "req_hour": "Solicitudes (Última Hora)",
+        "hunti_title": "Hunti AI - Su Consultor de Ventas Inteligente",
+        "hunti_welcome": "¡Bienvenido! Estoy aquí para ayudarle a automatizar su negocio y ahorrar tiempo.",
+        "hunti_sub": "Cuénteme sus desafíos y le mostraré cómo la IA puede resolverlos.",
+        "hunti_input": "¿Qué desafío enfrenta?",
+        "analytics_title": "Panel de Análisis",
+        "analytics_sub": "Métricas de rendimiento en tiempo real para sus campañas de automatización.",
+        "total_leads": "Total de Leads",
+        "pitches_gen": "Propuestas Generadas",
+        "emails_sent": "Emails Enviados",
+        "forms_sub": "Formularios Enviados",
+        "activity_overview": "Resumen de Actividad",
+        "email_status": "Estado de Entrega de Emails",
+        "recent_activity": "Registro de Actividad Reciente",
+        "db_records": "Registros de Base de Datos",
+        "pitch_title": "Emailer Automatizado de Propuestas",
+        "pitch_sub": "Genere y envíe propuestas de ventas personalizadas a sus leads automáticamente.",
+        "pitch_info": "Cómo funciona: Seleccione leads de su base de datos y Hunti generará propuestas personalizadas y las enviará por email.",
+        "avail_leads": "Leads Disponibles",
+        "btn_gen_pitch": "Generar Propuestas",
+        "btn_view_pitch": "Ver Propuestas Generadas",
+        "success_gen": "¡Propuestas generadas exitosamente!",
+        "no_leads": "¡No se encontraron leads. ¡Agregue algunos primero!",
+        "no_pitches": "Aún no se han generado propuestas. Haga clic en 'Generar Propuestas' para crearlas.",
+        "footer": "2026 Hunti AI Solutions. Todos los derechos reservados.",
+        "loading": "Cargando...",
+        "generating_dashboard": "Generando su panel personalizado...",
+        "generating": "Generando...",
+        "suggestions": {
+            "Propietario de Pequeña Empresa": [
+                "Me estoy ahogando en emails y no puedo responder lo suficientemente rápido",
+                "Mi equipo pierde horas en tareas manuales repetitivas",
+                "Necesito generar más leads pero no tengo tiempo",
+                "Quiero automatizar el seguimiento de mis clientes"
+            ],
+            "Propietario de Agencia": [
+                "Mi equipo pasa demasiado tiempo en la incorporación de clientes",
+                "Necesitamos automatizar la generación de propuestas",
+                "Quiero optimizar nuestro proceso de informes de clientes",
+                "Estamos luchando por gestionar múltiples comunicaciones con clientes"
+            ],
+            "Comercio Electrónico": [
+                "Necesito automatizar las confirmaciones de pedidos y el seguimiento",
+                "Los clientes hacen repetidamente las mismas preguntas",
+                "Quiero automatizar las actualizaciones de inventario y notificaciones",
+                "Necesito mejores formas de recopilar y responder a las reseñas"
+            ],
+            "Autónomo / Emprendedor": [
+                "Paso demasiado tiempo en administración en lugar de trabajo facturable",
+                "Necesito automatizar mi proceso de descubrimiento de clientes",
+                "Quiero automatizar mi facturación y recordatorios de pago",
+                "Necesito ayuda para encontrar y calificar nuevos clientes"
+            ]
+        }
     }
 }
+
+# Add more language translations (simplified versions for demo)
+for lang_code in ["fr", "de", "it", "pt", "ru", "zh", "ja", "ar"]:
+    if lang_code not in T:
+        T[lang_code] = T["en"].copy()
+        T[lang_code]["onboarding_title"] = f"Welcome (Translate to {lang_code})"
 
 # --- SESSION STATE INITIALIZATION ---
 if 'onboarding_complete' not in st.session_state:
@@ -212,13 +323,15 @@ if 'page' not in st.session_state:
     st.session_state.page = "Hunti AI"
 if 'target_page' not in st.session_state:
     st.session_state.target_page = None
+if 'dashboard_generating' not in st.session_state:
+    st.session_state.dashboard_generating = False
 
 DB_NAME = "hunti.db"
 
 def t(key):
     """Helper function to get translation"""
     keys = key.split('.')
-    val = T[st.session_state.language]
+    val = T.get(st.session_state.language, T["en"])
     for k in keys:
         val = val.get(k, key)
     return val
@@ -262,6 +375,21 @@ def get_data(query):
         st.error(f"Database error: {e}")
         return pd.DataFrame()
 
+# --- DASHBOARD GENERATION LOADING SCREEN ---
+if st.session_state.dashboard_generating:
+    st.markdown("""
+        <div class="loading-overlay">
+            <div style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p style="color: white; margin-top: 20px; font-size: 20px; font-weight: 600;">""" + t("generating_dashboard") + """</p>
+                <p style="color: #aaa; margin-top: 10px;">Setting up your personalized experience...</p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    time.sleep(2)  # Show loading for 2 seconds
+    st.session_state.dashboard_generating = False
+    st.rerun()
+
 # --- ONBOARDING PAGE ---
 if not st.session_state.onboarding_complete:
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -275,20 +403,50 @@ if not st.session_state.onboarding_complete:
         if 'temp_business' not in st.session_state:
             st.session_state.temp_business = 'Small Business Owner'
         
-        lang_options = {"English": "en", "Magyar": "hu"}
+        # Language selection with search
+        lang_options = {
+            "English": "en",
+            "Magyar": "hu",
+            "Español": "es",
+            "Français": "fr",
+            "Deutsch": "de",
+            "Italiano": "it",
+            "Português": "pt",
+            "Русский": "ru",
+            "中文": "zh",
+            "日本語": "ja",
+            "العربية": "ar"
+        }
+        
+        # Search field for language
+        lang_search = st.text_input(t("search_lang"), placeholder="Type to search...", key="lang_search")
+        
+        # Filter languages based on search
+        if lang_search:
+            filtered_langs = {k: v for k, v in lang_options.items() if lang_search.lower() in k.lower()}
+        else:
+            filtered_langs = lang_options
+        
         selected_lang_name = st.selectbox(
             t("select_lang"), 
-            list(lang_options.keys()), 
-            index=1 if st.session_state.temp_lang == 'hu' else 0,
+            list(filtered_langs.keys()),
+            index=list(filtered_langs.keys()).index("Magyar") if "Magyar" in filtered_langs and st.session_state.temp_lang == 'hu' else 
+                   list(filtered_langs.keys()).index("Español") if "Español" in filtered_langs and st.session_state.temp_lang == 'es' else 0,
             key="onboarding_lang"
         )
-        st.session_state.temp_lang = lang_options[selected_lang_name]
+        st.session_state.temp_lang = filtered_langs[selected_lang_name]
         st.session_state.language = st.session_state.temp_lang
         
         biz_options_en = ["Small Business Owner", "Agency Owner", "E-commerce", "Freelancer / Solopreneur"]
         biz_options_hu = ["Kisvállalkozás Tulajdonos", "Ügynökség Tulajdonos", "E-kereskedelem", "Szabadúszó / Egyéni Vállalkozó"]
+        biz_options_es = ["Propietario de Pequeña Empresa", "Propietario de Agencia", "Comercio Electrónico", "Autónomo / Emprendedor"]
         
-        biz_options = biz_options_hu if st.session_state.language == 'hu' else biz_options_en
+        if st.session_state.language == 'hu':
+            biz_options = biz_options_hu
+        elif st.session_state.language == 'es':
+            biz_options = biz_options_es
+        else:
+            biz_options = biz_options_en
         
         selected_biz = st.selectbox(
             t("select_business"), 
@@ -303,16 +461,18 @@ if not st.session_state.onboarding_complete:
             st.session_state.language = st.session_state.temp_lang
             st.session_state.business_type = st.session_state.temp_business
             st.session_state.onboarding_complete = True
+            st.session_state.dashboard_generating = True  # Trigger dashboard generation loading
             if 'temp_lang' in st.session_state:
                 del st.session_state.temp_lang
             if 'temp_business' in st.session_state:
                 del st.session_state.temp_business
+            if 'lang_search' in st.session_state:
+                del st.session_state.lang_search
             st.rerun()
     st.stop()
 
 # --- PAGE TRANSITION HANDLER ---
 if st.session_state.target_page and st.session_state.target_page != st.session_state.page:
-    # Show loading overlay
     st.markdown("""
         <div class="loading-overlay">
             <div>
@@ -321,19 +481,15 @@ if st.session_state.target_page and st.session_state.target_page != st.session_s
             </div>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Small delay to show loading
     time.sleep(0.5)
-    
-    # Update to target page
     st.session_state.page = st.session_state.target_page
     st.session_state.target_page = None
     st.rerun()
 
 # --- MAIN APP ---
 def navigate_to_page(page_name):
-    """Set target page for smooth transition"""
     st.session_state.target_page = page_name
+    st.rerun()  # Force immediate rerun
 
 # Top Navigation
 col_nav1, col_nav2, col_nav3 = st.columns(3)
