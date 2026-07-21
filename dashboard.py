@@ -54,8 +54,10 @@ T = {
     "en": {
         "onboarding_title": "Welcome to Hunti AI Solutions",
         "onboarding_subtitle": "Let's personalize your automation dashboard in just a few seconds.",
-        "select_lang": "Select your preferred language",
-        "select_business": "What best describes your business?",
+        "q1_lang": "Select your preferred language",
+        "q2_business": "What best describes your business?",
+        "q3_team": "What's your team size?",
+        "q4_goal": "What's your main automation goal?",
         "btn_start": "Generate My Dashboard",
         "lang_en": "English",
         "lang_hu": "Hungarian (Magyar)",
@@ -72,6 +74,14 @@ T = {
         "biz_agency": "Agency Owner",
         "biz_ecom": "E-commerce",
         "biz_freelance": "Freelancer / Solopreneur",
+        "team_1": "Just me (Solo)",
+        "team_2": "2-5 employees",
+        "team_3": "6-20 employees",
+        "team_4": "20+ employees",
+        "goal_leads": "Generate more leads",
+        "goal_support": "Improve customer support",
+        "goal_admin": "Automate admin tasks",
+        "goal_sales": "Streamline sales process",
         "nav_hunti": "Hunti AI",
         "nav_analytics": "Analytics Dashboard",
         "nav_pitches": "Pitch Emailer",
@@ -136,8 +146,10 @@ T = {
     "hu": {
         "onboarding_title": "Üdvözöljük a Hunti AI Solutions-nél",
         "onboarding_subtitle": "Személyre szabjuk az automatizálási irányítópultját néhány másodperc alatt.",
-        "select_lang": "Válassza ki a preferált nyelvet",
-        "select_business": "Mi írja le legjobban a vállalkozását?",
+        "q1_lang": "Válassza ki a preferált nyelvet",
+        "q2_business": "Mi írja le legjobban a vállalkozását?",
+        "q3_team": "Mekkora a csapatméret?",
+        "q4_goal": "Mi a fő automatizálási célja?",
         "btn_start": "Irányítópult Generálása",
         "lang_en": "Angol (English)",
         "lang_hu": "Magyar",
@@ -154,6 +166,14 @@ T = {
         "biz_agency": "Ügynökség Tulajdonos",
         "biz_ecom": "E-kereskedelem",
         "biz_freelance": "Szabadúszó / Egyéni Vállalkozó",
+        "team_1": "Egyedül vagyok (Solo)",
+        "team_2": "2-5 alkalmazott",
+        "team_3": "6-20 alkalmazott",
+        "team_4": "20+ alkalmazott",
+        "goal_leads": "Több lead generálása",
+        "goal_support": "Ügyféltámogatás javítása",
+        "goal_admin": "Adminisztratív feladatok automatizálása",
+        "goal_sales": "Értékesítési folyamat egyszerűsítése",
         "nav_hunti": "Hunti AI",
         "nav_analytics": "Analitikai Irányítópult",
         "nav_pitches": "Automatizált Pitch Küldő",
@@ -218,8 +238,10 @@ T = {
     "es": {
         "onboarding_title": "Bienvenido a Hunti AI Solutions",
         "onboarding_subtitle": "Personalicemos su panel de automatización en unos segundos.",
-        "select_lang": "Seleccione su idioma preferido",
-        "select_business": "¿Qué describe mejor su negocio?",
+        "q1_lang": "Seleccione su idioma preferido",
+        "q2_business": "¿Qué describe mejor su negocio?",
+        "q3_team": "¿Cuál es el tamaño de su equipo?",
+        "q4_goal": "¿Cuál es su principal objetivo de automatización?",
         "btn_start": "Generar Mi Panel",
         "lang_en": "Inglés (English)",
         "lang_hu": "Húngaro (Magyar)",
@@ -236,6 +258,14 @@ T = {
         "biz_agency": "Propietario de Agencia",
         "biz_ecom": "Comercio Electrónico",
         "biz_freelance": "Autónomo / Emprendedor",
+        "team_1": "Solo yo (Individual)",
+        "team_2": "2-5 empleados",
+        "team_3": "6-20 empleados",
+        "team_4": "20+ empleados",
+        "goal_leads": "Generar más leads",
+        "goal_support": "Mejorar el soporte al cliente",
+        "goal_admin": "Automatizar tareas administrativas",
+        "goal_sales": "Optimizar el proceso de ventas",
         "nav_hunti": "Hunti AI",
         "nav_analytics": "Panel de Análisis",
         "nav_pitches": "Emailer de Propuestas",
@@ -296,14 +326,744 @@ T = {
                 "Necesito ayuda para encontrar y calificar nuevos clientes"
             ]
         }
+    },
+    "fr": {
+        "onboarding_title": "Bienvenue chez Hunti AI Solutions",
+        "onboarding_subtitle": "Personnalisons votre tableau de bord d'automatisation en quelques secondes.",
+        "q1_lang": "Sélectionnez votre langue préférée",
+        "q2_business": "Qu'est-ce qui décrit le mieux votre entreprise?",
+        "q3_team": "Quelle est la taille de votre équipe?",
+        "q4_goal": "Quel est votre principal objectif d'automatisation?",
+        "btn_start": "Générer Mon Tableau de Bord",
+        "lang_en": "Anglais (English)",
+        "lang_hu": "Hongrois (Magyar)",
+        "lang_es": "Espagnol (Español)",
+        "lang_fr": "Français",
+        "lang_de": "Allemand (Deutsch)",
+        "lang_it": "Italien (Italiano)",
+        "lang_pt": "Portugais (Português)",
+        "lang_ru": "Russe (Русский)",
+        "lang_zh": "Chinois (中文)",
+        "lang_ja": "Japonais (日本語)",
+        "lang_ar": "Arabe (العربية)",
+        "biz_small": "Propriétaire de Petite Entreprise",
+        "biz_agency": "Propriétaire d'Agence",
+        "biz_ecom": "Commerce Électronique",
+        "biz_freelance": "Indépendant / Auto-entrepreneur",
+        "team_1": "Seul (Solo)",
+        "team_2": "2-5 employés",
+        "team_3": "6-20 employés",
+        "team_4": "20+ employés",
+        "goal_leads": "Générer plus de leads",
+        "goal_support": "Améliorer le support client",
+        "goal_admin": "Automatiser les tâches administratives",
+        "goal_sales": "Optimiser le processus de vente",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Tableau de Bord Analytique",
+        "nav_pitches": "Emailer de Propositions",
+        "sidebar_title": "Profil Utilisateur",
+        "reset_prefs": "Réinitialiser les Préférences",
+        "total_req": "Total des Demandes",
+        "req_hour": "Demandes (Dernière Heure)",
+        "hunti_title": "Hunti AI - Votre Consultant Commercial Intelligent",
+        "hunti_welcome": "Bienvenue! Je suis là pour vous aider à automatiser votre entreprise et gagner du temps.",
+        "hunti_sub": "Parlez-moi de vos défis et je vous montrerai comment l'IA peut les résoudre.",
+        "hunti_input": "Quel défi rencontrez-vous?",
+        "analytics_title": "Tableau de Bord Analytique",
+        "analytics_sub": "Métriques de performance en temps réel pour vos campagnes d'automatisation.",
+        "total_leads": "Total des Leads",
+        "pitches_gen": "Propositions Générées",
+        "emails_sent": "Emails Envoyés",
+        "forms_sub": "Formulaires Soumis",
+        "activity_overview": "Aperçu de l'Activité",
+        "email_status": "Statut de Livraison des Emails",
+        "recent_activity": "Journal d'Activité Récente",
+        "db_records": "Enregistrements de Base de Données",
+        "pitch_title": "Emailer Automatisé de Propositions",
+        "pitch_sub": "Générez et envoyez des propositions de ventes personnalisées à vos leads automatiquement.",
+        "pitch_info": "Comment ça marche: Sélectionnez des leads de votre base de données et Hunti générera des propositions personnalisées et les enverra par email.",
+        "avail_leads": "Leads Disponibles",
+        "btn_gen_pitch": "Générer des Propositions",
+        "btn_view_pitch": "Voir les Propositions Générées",
+        "success_gen": "Propositions générées avec succès!",
+        "no_leads": "Aucun lead trouvé. Ajoutez d'abord des leads!",
+        "no_pitches": "Aucune proposition générée. Cliquez sur 'Générer des Propositions' pour les créer.",
+        "footer": "2026 Hunti AI Solutions. Tous droits réservés.",
+        "loading": "Chargement...",
+        "generating_dashboard": "Génération de votre tableau de bord personnalisé...",
+        "generating": "Génération...",
+        "suggestions": {
+            "Propriétaire de Petite Entreprise": [
+                "Je suis submergé d'emails et ne peux pas répondre assez vite",
+                "Mon équipe perd des heures sur des tâches manuelles répétitives",
+                "J'ai besoin de générer plus de leads mais je n'ai pas le temps",
+                "Je veux automatiser le suivi de mes clients"
+            ],
+            "Propriétaire d'Agence": [
+                "Mon équipe passe trop de temps sur l'intégration des clients",
+                "Nous devons automatiser la génération de propositions",
+                "Je veux optimiser notre processus de rapport client",
+                "Nous luttons pour gérer plusieurs communications clients"
+            ],
+            "Commerce Électronique": [
+                "J'ai besoin d'automatiser les confirmations de commande et le suivi",
+                "Les clients posent répétitivement les mêmes questions",
+                "Je veux automatiser les mises à jour d'inventaire et notifications",
+                "J'ai besoin de meilleures façons de collecter et répondre aux avis"
+            ],
+            "Indépendant / Auto-entrepreneur": [
+                "Je passe trop de temps sur l'administration au lieu du travail facturable",
+                "J'ai besoin d'automatiser mon processus de découverte de clients",
+                "Je veux automatiser ma facturation et rappels de paiement",
+                "J'ai besoin d'aide pour trouver et qualifier de nouveaux clients"
+            ]
+        }
+    },
+    "de": {
+        "onboarding_title": "Willkommen bei Hunti AI Solutions",
+        "onboarding_subtitle": "Lassen Sie uns Ihr Automatisierungs-Dashboard in wenigen Sekunden personalisieren.",
+        "q1_lang": "Wählen Sie Ihre bevorzugte Sprache",
+        "q2_business": "Was beschreibt Ihr Unternehmen am besten?",
+        "q3_team": "Wie groß ist Ihr Team?",
+        "q4_goal": "Was ist Ihr Hauptziel für Automatisierung?",
+        "btn_start": "Mein Dashboard Generieren",
+        "lang_en": "Englisch (English)",
+        "lang_hu": "Ungarisch (Magyar)",
+        "lang_es": "Spanisch (Español)",
+        "lang_fr": "Französisch (Français)",
+        "lang_de": "Deutsch",
+        "lang_it": "Italienisch (Italiano)",
+        "lang_pt": "Portugiesisch (Português)",
+        "lang_ru": "Russisch (Русский)",
+        "lang_zh": "Chinesisch (中文)",
+        "lang_ja": "Japanisch (日本語)",
+        "lang_ar": "Arabisch (العربية)",
+        "biz_small": "Kleinunternehmer",
+        "biz_agency": "Agenturinhaber",
+        "biz_ecom": "E-Commerce",
+        "biz_freelance": "Freiberufler / Solo-Unternehmer",
+        "team_1": "Nur ich (Solo)",
+        "team_2": "2-5 Mitarbeiter",
+        "team_3": "6-20 Mitarbeiter",
+        "team_4": "20+ Mitarbeiter",
+        "goal_leads": "Mehr Leads generieren",
+        "goal_support": "Kundensupport verbessern",
+        "goal_admin": "Administrative Aufgaben automatisieren",
+        "goal_sales": "Verkaufsprozess optimieren",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Analyse-Dashboard",
+        "nav_pitches": "Angebots-E-Mail",
+        "sidebar_title": "Benutzerprofil",
+        "reset_prefs": "Einstellungen Zurücksetzen",
+        "total_req": "Gesamte Anfragen",
+        "req_hour": "Anfragen (Letzte Stunde)",
+        "hunti_title": "Hunti AI - Ihr Intelligenter Verkaufsberater",
+        "hunti_welcome": "Willkommen! Ich bin hier, um Ihnen zu helfen, Ihr Unternehmen zu automatisieren und Zeit zu sparen.",
+        "hunti_sub": "Erzählen Sie mir von Ihren Herausforderungen und ich zeige Ihnen, wie KI sie lösen kann.",
+        "hunti_input": "Welche Herausforderung haben Sie?",
+        "analytics_title": "Analyse-Dashboard",
+        "analytics_sub": "Echtzeit-Leistungsmetriken für Ihre Automatisierungskampagnen.",
+        "total_leads": "Gesamte Leads",
+        "pitches_gen": "Generierte Angebote",
+        "emails_sent": "Gesendete E-Mails",
+        "forms_sub": "Eingereichte Formulare",
+        "activity_overview": "Aktivitätsübersicht",
+        "email_status": "E-Mail-Zustellstatus",
+        "recent_activity": "Letzte Aktivitätsprotokoll",
+        "db_records": "Datenbankeinträge",
+        "pitch_title": "Automatisierter Angebots-E-Mail",
+        "pitch_sub": "Generieren und senden Sie personalisierte Verkaufsangebote automatisch an Ihre Leads.",
+        "pitch_info": "So funktioniert's: Wählen Sie Leads aus Ihrer Datenbank aus und Hunti generiert personalisierte Angebote und sendet sie per E-Mail.",
+        "avail_leads": "Verfügbare Leads",
+        "btn_gen_pitch": "Angebote Generieren",
+        "btn_view_pitch": "Generierte Angebote Anzeigen",
+        "success_gen": "Angebote erfolgreich generiert!",
+        "no_leads": "Keine Leads gefunden. Fügen Sie zuerst Leads hinzu!",
+        "no_pitches": "Noch keine Angebote generiert. Klicken Sie auf 'Angebote Generieren' um sie zu erstellen.",
+        "footer": "2026 Hunti AI Solutions. Alle Rechte vorbehalten.",
+        "loading": "Wird geladen...",
+        "generating_dashboard": "Ihr personalisiertes Dashboard wird generiert...",
+        "generating": "Generieren...",
+        "suggestions": {
+            "Kleinunternehmer": [
+                "Ich ertrinke in E-Mails und kann nicht schnell genug antworten",
+                "Mein Team verschwendet Stunden mit repetitiven manuellen Aufgaben",
+                "Ich muss mehr Leads generieren, habe aber keine Zeit",
+                "Ich möchte meine Kundenbetreuung automatisieren"
+            ],
+            "Agenturinhaber": [
+                "Mein Team verbringt zu viel Zeit mit Kunden-Onboarding",
+                "Wir müssen die Angebotserstellung automatisieren",
+                "Ich möchte unseren Kundenberichtsprozess optimieren",
+                "Wir kämpfen damit, mehrere Kundenkommunikationen zu verwalten"
+            ],
+            "E-Commerce": [
+                "Ich muss Bestellbestätigungen und Tracking automatisieren",
+                "Kunden stellen wiederholt dieselben Fragen",
+                "Ich möchte Bestandsaktualisierungen und Benachrichtigungen automatisieren",
+                "Ich brauche bessere Möglichkeiten, Bewertungen zu sammeln und zu beantworten"
+            ],
+            "Freiberufler / Solo-Unternehmer": [
+                "Ich verbringe zu viel Zeit mit Verwaltung statt abrechenbarer Arbeit",
+                "Ich muss meinen Kundenfindungsprozess automatisieren",
+                "Ich möchte meine Rechnungsstellung und Zahlungserinnerungen automatisieren",
+                "Ich brauche Hilfe beim Finden und Qualifizieren neuer Kunden"
+            ]
+        }
+    },
+    "it": {
+        "onboarding_title": "Benvenuto in Hunti AI Solutions",
+        "onboarding_subtitle": "Personalizziamo la tua dashboard di automazione in pochi secondi.",
+        "q1_lang": "Seleziona la tua lingua preferita",
+        "q2_business": "Cosa descrive meglio la tua attività?",
+        "q3_team": "Qual è la dimensione del tuo team?",
+        "q4_goal": "Qual è il tuo principale obiettivo di automazione?",
+        "btn_start": "Genera la Mia Dashboard",
+        "lang_en": "Inglese (English)",
+        "lang_hu": "Ungherese (Magyar)",
+        "lang_es": "Spagnolo (Español)",
+        "lang_fr": "Francese (Français)",
+        "lang_de": "Tedesco (Deutsch)",
+        "lang_it": "Italiano",
+        "lang_pt": "Portoghese (Português)",
+        "lang_ru": "Russo (Русский)",
+        "lang_zh": "Cinese (中文)",
+        "lang_ja": "Giapponese (日本語)",
+        "lang_ar": "Arabo (العربية)",
+        "biz_small": "Proprietario di Piccola Impresa",
+        "biz_agency": "Proprietario di Agenzia",
+        "biz_ecom": "E-commerce",
+        "biz_freelance": "Freelance / Imprenditore Solitario",
+        "team_1": "Solo io (Solista)",
+        "team_2": "2-5 dipendenti",
+        "team_3": "6-20 dipendenti",
+        "team_4": "20+ dipendenti",
+        "goal_leads": "Generare più lead",
+        "goal_support": "Migliorare il supporto clienti",
+        "goal_admin": "Automatizzare compiti amministrativi",
+        "goal_sales": "Ottimizzare il processo di vendita",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Dashboard Analitica",
+        "nav_pitches": "Email di Proposte",
+        "sidebar_title": "Profilo Utente",
+        "reset_prefs": "Reimposta Preferenze",
+        "total_req": "Totale Richieste",
+        "req_hour": "Richieste (Ultima Ora)",
+        "hunti_title": "Hunti AI - Il Tuo Consulente di Vendita Intelligente",
+        "hunti_welcome": "Benvenuto! Sono qui per aiutarti ad automatizzare la tua attività e risparmiare tempo.",
+        "hunti_sub": "Parlami delle tue sfide e ti mostrerò come l'IA può risolverle.",
+        "hunti_input": "Quale sfida stai affrontando?",
+        "analytics_title": "Dashboard Analitica",
+        "analytics_sub": "Metriche di prestazione in tempo reale per le tue campagne di automazione.",
+        "total_leads": "Totale Lead",
+        "pitches_gen": "Proposte Generate",
+        "emails_sent": "Email Inviate",
+        "forms_sub": "Moduli Inviati",
+        "activity_overview": "Panoramica Attività",
+        "email_status": "Stato Consegna Email",
+        "recent_activity": "Registro Attività Recente",
+        "db_records": "Record Database",
+        "pitch_title": "Email di Proposte Automatizzata",
+        "pitch_sub": "Genera e invia proposte di vendita personalizzate ai tuoi lead automaticamente.",
+        "pitch_info": "Come funziona: Seleziona i lead dal tuo database e Hunti genererà proposte personalizzate e le invierà via email.",
+        "avail_leads": "Lead Disponibili",
+        "btn_gen_pitch": "Genera Proposte",
+        "btn_view_pitch": "Visualizza Proposte Generate",
+        "success_gen": "Proposte generate con successo!",
+        "no_leads": "Nessun lead trovato. Aggiungi prima dei lead!",
+        "no_pitches": "Nessuna proposta generata. Clicca su 'Genera Proposte' per crearle.",
+        "footer": "2026 Hunti AI Solutions. Tutti i diritti riservati.",
+        "loading": "Caricamento...",
+        "generating_dashboard": "Generazione della tua dashboard personalizzata...",
+        "generating": "Generazione...",
+        "suggestions": {
+            "Proprietario di Piccola Impresa": [
+                "Sono sommerso da email e non riesco a rispondere abbastanza velocemente",
+                "Il mio team perde ore in compiti manuali ripetitivi",
+                "Ho bisogno di generare più lead ma non ho tempo",
+                "Voglio automatizzare il follow-up dei miei clienti"
+            ],
+            "Proprietario di Agenzia": [
+                "Il mio team passa troppo tempo nell'onboarding dei clienti",
+                "Dobbiamo automatizzare la generazione di proposte",
+                "Voglio ottimizzare il nostro processo di reportistica clienti",
+                "Faticiamo a gestire più comunicazioni con i clienti"
+            ],
+            "E-commerce": [
+                "Ho bisogno di automatizzare conferme ordini e tracciamento",
+                "I clienti fanno ripetutamente le stesse domande",
+                "Voglio automatizzare aggiornamenti inventario e notifiche",
+                "Ho bisogno di modi migliori per raccogliere e rispondere alle recensioni"
+            ],
+            "Freelance / Imprenditore Solitario": [
+                "Passo troppo tempo nell'amministrazione invece del lavoro fatturabile",
+                "Ho bisogno di automatizzare il mio processo di scoperta clienti",
+                "Voglio automatizzare la mia fatturazione e promemoria di pagamento",
+                "Ho bisogno di aiuto per trovare e qualificare nuovi clienti"
+            ]
+        }
+    },
+    "pt": {
+        "onboarding_title": "Bem-vindo à Hunti AI Solutions",
+        "onboarding_subtitle": "Vamos personalizar seu painel de automação em poucos segundos.",
+        "q1_lang": "Selecione seu idioma preferido",
+        "q2_business": "O que melhor descreve seu negócio?",
+        "q3_team": "Qual é o tamanho da sua equipe?",
+        "q4_goal": "Qual é seu principal objetivo de automação?",
+        "btn_start": "Gerar Meu Painel",
+        "lang_en": "Inglês (English)",
+        "lang_hu": "Húngaro (Magyar)",
+        "lang_es": "Espanhol (Español)",
+        "lang_fr": "Francês (Français)",
+        "lang_de": "Alemão (Deutsch)",
+        "lang_it": "Italiano",
+        "lang_pt": "Português",
+        "lang_ru": "Russo (Русский)",
+        "lang_zh": "Chinês (中文)",
+        "lang_ja": "Japonês (日本語)",
+        "lang_ar": "Árabe (العربية)",
+        "biz_small": "Proprietário de Pequena Empresa",
+        "biz_agency": "Proprietário de Agência",
+        "biz_ecom": "Comércio Eletrônico",
+        "biz_freelance": "Autônomo / Empreendedor Individual",
+        "team_1": "Apenas eu (Solo)",
+        "team_2": "2-5 funcionários",
+        "team_3": "6-20 funcionários",
+        "team_4": "20+ funcionários",
+        "goal_leads": "Gerar mais leads",
+        "goal_support": "Melhorar o suporte ao cliente",
+        "goal_admin": "Automatizar tarefas administrativas",
+        "goal_sales": "Otimizar o processo de vendas",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Painel de Análise",
+        "nav_pitches": "Email de Propostas",
+        "sidebar_title": "Perfil do Usuário",
+        "reset_prefs": "Redefinir Preferências",
+        "total_req": "Total de Solicitações",
+        "req_hour": "Solicitações (Última Hora)",
+        "hunti_title": "Hunti AI - Seu Consultor de Vendas Inteligente",
+        "hunti_welcome": "Bem-vindo! Estou aqui para ajudá-lo a automatizar seu negócio e economizar tempo.",
+        "hunti_sub": "Conte-me sobre seus desafios e eu mostrarei como a IA pode resolvê-los.",
+        "hunti_input": "Qual desafio você está enfrentando?",
+        "analytics_title": "Painel de Análise",
+        "analytics_sub": "Métricas de desempenho em tempo real para suas campanhas de automação.",
+        "total_leads": "Total de Leads",
+        "pitches_gen": "Propostas Geradas",
+        "emails_sent": "Emails Enviados",
+        "forms_sub": "Formulários Enviados",
+        "activity_overview": "Visão Geral da Atividade",
+        "email_status": "Status de Entrega de Emails",
+        "recent_activity": "Registro de Atividade Recente",
+        "db_records": "Registros do Banco de Dados",
+        "pitch_title": "Email de Propostas Automatizado",
+        "pitch_sub": "Gere e envie propostas de vendas personalizadas para seus leads automaticamente.",
+        "pitch_info": "Como funciona: Selecione leads do seu banco de dados e o Hunti gerará propostas personalizadas e as enviará por email.",
+        "avail_leads": "Leads Disponíveis",
+        "btn_gen_pitch": "Gerar Propostas",
+        "btn_view_pitch": "Ver Propostas Geradas",
+        "success_gen": "Propostas geradas com sucesso!",
+        "no_leads": "Nenhum lead encontrado. Adicione alguns leads primeiro!",
+        "no_pitches": "Nenhuma proposta gerada ainda. Clique em 'Gerar Propostas' para criá-las.",
+        "footer": "2026 Hunti AI Solutions. Todos os direitos reservados.",
+        "loading": "Carregando...",
+        "generating_dashboard": "Gerando seu painel personalizado...",
+        "generating": "Gerando...",
+        "suggestions": {
+            "Proprietário de Pequena Empresa": [
+                "Estou afogado em emails e não consigo responder rápido o suficiente",
+                "Minha equipe perde horas em tarefas manuais repetitivas",
+                "Preciso gerar mais leads mas não tenho tempo",
+                "Quero automatizar o acompanhamento dos meus clientes"
+            ],
+            "Proprietário de Agência": [
+                "Minha equipe passa muito tempo no onboarding de clientes",
+                "Precisamos automatizar a geração de propostas",
+                "Quero otimizar nosso processo de relatórios de clientes",
+                "Estamos lutando para gerenciar múltiplas comunicações com clientes"
+            ],
+            "Comércio Eletrônico": [
+                "Preciso automatizar confirmações de pedidos e rastreamento",
+                "Os clientes fazem repetidamente as mesmas perguntas",
+                "Quero automatizar atualizações de inventário e notificações",
+                "Preciso de melhores formas de coletar e responder a avaliações"
+            ],
+            "Autônomo / Empreendedor Individual": [
+                "Passo muito tempo em administração em vez de trabalho faturável",
+                "Preciso automatizar meu processo de descoberta de clientes",
+                "Quero automatizar minha faturamento e lembretes de pagamento",
+                "Preciso de ajuda para encontrar e qualificar novos clientes"
+            ]
+        }
+    },
+    "ru": {
+        "onboarding_title": "Добро пожаловать в Hunti AI Solutions",
+        "onboarding_subtitle": "Давайте персонализируем вашу панель автоматизации за несколько секунд.",
+        "q1_lang": "Выберите предпочтительный язык",
+        "q2_business": "Что лучше всего описывает ваш бизнес?",
+        "q3_team": "Какой размер вашей команды?",
+        "q4_goal": "Какова ваша главная цель автоматизации?",
+        "btn_start": "Сгенерировать Мою Панель",
+        "lang_en": "Английский (English)",
+        "lang_hu": "Венгерский (Magyar)",
+        "lang_es": "Испанский (Español)",
+        "lang_fr": "Французский (Français)",
+        "lang_de": "Немецкий (Deutsch)",
+        "lang_it": "Итальянский (Italiano)",
+        "lang_pt": "Португальский (Português)",
+        "lang_ru": "Русский",
+        "lang_zh": "Китайский (中文)",
+        "lang_ja": "Японский (日本語)",
+        "lang_ar": "Арабский (العربية)",
+        "biz_small": "Владелец малого бизнеса",
+        "biz_agency": "Владелец агентства",
+        "biz_ecom": "Электронная коммерция",
+        "biz_freelance": "Фрилансер / Индивидуальный предприниматель",
+        "team_1": "Только я (Соло)",
+        "team_2": "2-5 сотрудников",
+        "team_3": "6-20 сотрудников",
+        "team_4": "20+ сотрудников",
+        "goal_leads": "Генерировать больше лидов",
+        "goal_support": "Улучшить поддержку клиентов",
+        "goal_admin": "Автоматизировать административные задачи",
+        "goal_sales": "Оптимизировать процесс продаж",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "Панель аналитики",
+        "nav_pitches": "Email предложений",
+        "sidebar_title": "Профиль пользователя",
+        "reset_prefs": "Сбросить настройки",
+        "total_req": "Всего запросов",
+        "req_hour": "Запросы (последний час)",
+        "hunti_title": "Hunti AI - Ваш интеллектуальный консультант по продажам",
+        "hunti_welcome": "Добро пожаловать! Я здесь, чтобы помочь вам автоматизировать ваш бизнес и сэкономить время.",
+        "hunti_sub": "Расскажите мне о ваших проблемах, и я покажу, как ИИ может их решить.",
+        "hunti_input": "С какой проблемой вы столкнулись?",
+        "analytics_title": "Панель аналитики",
+        "analytics_sub": "Метрики производительности в реальном времени для ваших кампаний автоматизации.",
+        "total_leads": "Всего лидов",
+        "pitches_gen": "Сгенерированные предложения",
+        "emails_sent": "Отправленные email",
+        "forms_sub": "Отправленные формы",
+        "activity_overview": "Обзор активности",
+        "email_status": "Статус доставки email",
+        "recent_activity": "Журнал последней активности",
+        "db_records": "Записи базы данных",
+        "pitch_title": "Автоматизированный email предложений",
+        "pitch_sub": "Генерируйте и отправляйте персонализированные предложения о продажах вашим лидам автоматически.",
+        "pitch_info": "Как это работает: Выберите лиды из вашей базы данных, и Hunti сгенерирует персонализированные предложения и отправит их по email.",
+        "avail_leads": "Доступные лиды",
+        "btn_gen_pitch": "Сгенерировать предложения",
+        "btn_view_pitch": "Просмотреть сгенерированные предложения",
+        "success_gen": "Предложения успешно сгенерированы!",
+        "no_leads": "Лиды не найдены. Сначала добавьте лиды!",
+        "no_pitches": "Предложения еще не сгенерированы. Нажмите 'Сгенерировать предложения' для их создания.",
+        "footer": "2026 Hunti AI Solutions. Все права защищены.",
+        "loading": "Загрузка...",
+        "generating_dashboard": "Генерация вашей персонализированной панели...",
+        "generating": "Генерация...",
+        "suggestions": {
+            "Владелец малого бизнеса": [
+                "Я тону в email и не могу отвечать достаточно быстро",
+                "Моя команда тратит часы на повторяющиеся ручные задачи",
+                "Мне нужно генерировать больше лидов, но у меня нет времени",
+                "Я хочу автоматизировать последующую работу с клиентами"
+            ],
+            "Владелец агентства": [
+                "Моя команда тратит слишком много времени на онбординг клиентов",
+                "Нам нужно автоматизировать генерацию предложений",
+                "Я хочу оптимизировать наш процесс отчетности для клиентов",
+                "Мы боремся с управлением множественных коммуникаций с клиентами"
+            ],
+            "Электронная коммерция": [
+                "Мне нужно автоматизировать подтверждения заказов и отслеживание",
+                "Клиенты постоянно задают одни и те же вопросы",
+                "Я хочу автоматизировать обновления инвентаря и уведомления",
+                "Мне нужны лучшие способы сбора и ответа на отзывы"
+            ],
+            "Фрилансер / Индивидуальный предприниматель": [
+                "Я трачу слишком много времени на администрирование вместо оплачиваемой работы",
+                "Мне нужно автоматизировать мой процесс поиска клиентов",
+                "Я хочу автоматизировать мой биллинг и напоминания об оплате",
+                "Мне нужна помощь в поиске и квалификации новых клиентов"
+            ]
+        }
+    },
+    "zh": {
+        "onboarding_title": "欢迎使用 Hunti AI Solutions",
+        "onboarding_subtitle": "让我们在几秒钟内个性化您的自动化仪表板。",
+        "q1_lang": "选择您的首选语言",
+        "q2_business": "什么最能描述您的业务?",
+        "q3_team": "您的团队规模是多少?",
+        "q4_goal": "您的主要自动化目标是什么?",
+        "btn_start": "生成我的仪表板",
+        "lang_en": "英语 (English)",
+        "lang_hu": "匈牙利语 (Magyar)",
+        "lang_es": "西班牙语 (Español)",
+        "lang_fr": "法语 (Français)",
+        "lang_de": "德语 (Deutsch)",
+        "lang_it": "意大利语 (Italiano)",
+        "lang_pt": "葡萄牙语 (Português)",
+        "lang_ru": "俄语 (Русский)",
+        "lang_zh": "中文",
+        "lang_ja": "日语 (日本語)",
+        "lang_ar": "阿拉伯语 (العربية)",
+        "biz_small": "小企业主",
+        "biz_agency": "代理机构所有者",
+        "biz_ecom": "电子商务",
+        "biz_freelance": "自由职业者/个体经营者",
+        "team_1": "只有我(单人)",
+        "team_2": "2-5名员工",
+        "team_3": "6-20名员工",
+        "team_4": "20名以上员工",
+        "goal_leads": "生成更多潜在客户",
+        "goal_support": "改善客户支持",
+        "goal_admin": "自动化行政任务",
+        "goal_sales": "优化销售流程",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "分析仪表板",
+        "nav_pitches": "提案邮件",
+        "sidebar_title": "用户资料",
+        "reset_prefs": "重置偏好设置",
+        "total_req": "总请求数",
+        "req_hour": "请求(最近一小时)",
+        "hunti_title": "Hunti AI - 您的智能销售顾问",
+        "hunti_welcome": "欢迎!我在这里帮助您自动化业务并节省时间。",
+        "hunti_sub": "告诉我您面临的挑战,我会向您展示AI如何解决它们。",
+        "hunti_input": "您面临什么挑战?",
+        "analytics_title": "分析仪表板",
+        "analytics_sub": "您的自动化活动的实时性能指标。",
+        "total_leads": "总潜在客户",
+        "pitches_gen": "生成的提案",
+        "emails_sent": "已发送邮件",
+        "forms_sub": "已提交表单",
+        "activity_overview": "活动概览",
+        "email_status": "邮件投递状态",
+        "recent_activity": "最近活动日志",
+        "db_records": "数据库记录",
+        "pitch_title": "自动化提案邮件",
+        "pitch_sub": "自动生成并向您的潜在客户发送个性化销售提案。",
+        "pitch_info": "工作原理:从您的数据库中选择潜在客户,Hunti将生成个性化提案并通过电子邮件发送。",
+        "avail_leads": "可用潜在客户",
+        "btn_gen_pitch": "生成提案",
+        "btn_view_pitch": "查看生成的提案",
+        "success_gen": "提案生成成功!",
+        "no_leads": "未找到潜在客户。请先添加一些潜在客户!",
+        "no_pitches": "尚未生成提案。点击'生成提案'来创建它们。",
+        "footer": "2026 Hunti AI Solutions. 保留所有权利。",
+        "loading": "加载中...",
+        "generating_dashboard": "正在生成您的个性化仪表板...",
+        "generating": "生成中...",
+        "suggestions": {
+            "小企业主": [
+                "我淹没在邮件中,无法足够快地回复",
+                "我的团队在重复性手动任务上浪费时间",
+                "我需要生成更多潜在客户但没有时间",
+                "我想自动化我的客户跟进"
+            ],
+            "代理机构所有者": [
+                "我的团队在客户入职上花费太多时间",
+                "我们需要自动化提案生成",
+                "我想优化我们的客户报告流程",
+                "我们在管理多个客户沟通方面遇到困难"
+            ],
+            "电子商务": [
+                "我需要自动化订单确认和跟踪",
+                "客户反复询问相同的问题",
+                "我想自动化库存更新和通知",
+                "我需要更好的方式来收集和回复评论"
+            ],
+            "自由职业者/个体经营者": [
+                "我花太多时间在行政工作上而不是计费工作",
+                "我需要自动化我的客户发现流程",
+                "我想自动化我的计费和付款提醒",
+                "我需要帮助寻找和筛选新客户"
+            ]
+        }
+    },
+    "ja": {
+        "onboarding_title": "Hunti AI Solutionsへようこそ",
+        "onboarding_subtitle": "数秒で自動化ダッシュボードをパーソナライズしましょう。",
+        "q1_lang": "希望する言語を選択してください",
+        "q2_business": "あなたのビジネスを最もよく表すものは?",
+        "q3_team": "チームの規模は?",
+        "q4_goal": "主な自動化の目標は何ですか?",
+        "btn_start": "ダッシュボードを生成",
+        "lang_en": "英語 (English)",
+        "lang_hu": "ハンガリー語 (Magyar)",
+        "lang_es": "スペイン語 (Español)",
+        "lang_fr": "フランス語 (Français)",
+        "lang_de": "ドイツ語 (Deutsch)",
+        "lang_it": "イタリア語 (Italiano)",
+        "lang_pt": "ポルトガル語 (Português)",
+        "lang_ru": "ロシア語 (Русский)",
+        "lang_zh": "中国語 (中文)",
+        "lang_ja": "日本語",
+        "lang_ar": "アラビア語 (العربية)",
+        "biz_small": "小規模事業者",
+        "biz_agency": "エージェンシーオーナー",
+        "biz_ecom": "Eコマース",
+        "biz_freelance": "フリーランス/個人事業主",
+        "team_1": "一人だけ(ソロ)",
+        "team_2": "2-5人の従業員",
+        "team_3": "6-20人の従業員",
+        "team_4": "20人以上の従業員",
+        "goal_leads": "より多くのリードを生成",
+        "goal_support": "カスタマーサポートを改善",
+        "goal_admin": "管理業務を自動化",
+        "goal_sales": "販売プロセスを効率化",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "分析ダッシュボード",
+        "nav_pitches": "提案メール",
+        "sidebar_title": "ユーザープロフィール",
+        "reset_prefs": "設定をリセット",
+        "total_req": "総リクエスト数",
+        "req_hour": "リクエスト(直近1時間)",
+        "hunti_title": "Hunti AI - あなたのインテリジェントな営業コンサルタント",
+        "hunti_welcome": "ようこそ!ビジネスの自動化と時間節約をお手伝いします。",
+        "hunti_sub": "課題について教えてください。AIがどのように解決するかをお見せします。",
+        "hunti_input": "どのような課題に直面していますか?",
+        "analytics_title": "分析ダッシュボード",
+        "analytics_sub": "自動化キャンペーンのリアルタイムパフォーマンス指標。",
+        "total_leads": "総リード数",
+        "pitches_gen": "生成された提案",
+        "emails_sent": "送信済みメール",
+        "forms_sub": "送信済みフォーム",
+        "activity_overview": "活動概要",
+        "email_status": "メール配信状況",
+        "recent_activity": "最近の活動ログ",
+        "db_records": "データベースレコード",
+        "pitch_title": "自動化提案メール",
+        "pitch_sub": "リードにパーソナライズされた営業提案を自動的に生成して送信します。",
+        "pitch_info": "仕組み:データベースからリードを選択すると、Huntiがパーソナライズされた提案を生成し、メールで送信します。",
+        "avail_leads": "利用可能なリード",
+        "btn_gen_pitch": "提案を生成",
+        "btn_view_pitch": "生成された提案を表示",
+        "success_gen": "提案が正常に生成されました!",
+        "no_leads": "リードが見つかりません。まずリードを追加してください!",
+        "no_pitches": "まだ提案が生成されていません。'提案を生成'をクリックして作成してください。",
+        "footer": "2026 Hunti AI Solutions. 全著作権所有。",
+        "loading": "読み込み中...",
+        "generating_dashboard": "パーソナライズされたダッシュボードを生成中...",
+        "generating": "生成中...",
+        "suggestions": {
+            "小規模事業者": [
+                "メールが溢れていて十分に速く返信できない",
+                "チームが反復的な手作業に時間を浪費している",
+                "より多くのリードを生成する必要があるが時間がない",
+                "顧客フォローアップを自動化したい"
+            ],
+            "エージェンシーオーナー": [
+                "チームが顧客オンボーディングに時間をかけすぎている",
+                "提案生成を自動化する必要がある",
+                "顧客報告プロセスを効率化したい",
+                "複数の顧客コミュニケーションの管理に苦労している"
+            ],
+            "Eコマース": [
+                "注文確認と追跡を自動化する必要がある",
+                "顧客が繰り返し同じ質問をする",
+                "在庫更新と通知を自動化したい",
+                "レビューを収集して返信するより良い方法が必要"
+            ],
+            "フリーランス/個人事業主": [
+                "請求可能な仕事ではなく管理業務に時間をかけすぎている",
+                "顧客発見プロセスを自動化する必要がある",
+                "請求と支払いリマインダーを自動化したい",
+                "新しい顧客を見つけて資格を得るのに助けが必要"
+            ]
+        }
+    },
+    "ar": {
+        "onboarding_title": "مرحبًا بك في Hunti AI Solutions",
+        "onboarding_subtitle": "دعنا نخصص لوحة التحكم الخاصة بالأتمتة في بضع ثوانٍ.",
+        "q1_lang": "اختر لغتك المفضلة",
+        "q2_business": "ما الذي يصف عملك بشكل أفضل؟",
+        "q3_team": "ما هو حجم فريقك؟",
+        "q4_goal": "ما هو هدفك الرئيسي من الأتمتة؟",
+        "btn_start": "إنشاء لوحة التحكم الخاصة بي",
+        "lang_en": "الإنجليزية (English)",
+        "lang_hu": "المجرية (Magyar)",
+        "lang_es": "الإسبانية (Español)",
+        "lang_fr": "الفرنسية (Français)",
+        "lang_de": "الألمانية (Deutsch)",
+        "lang_it": "الإيطالية (Italiano)",
+        "lang_pt": "البرتغالية (Português)",
+        "lang_ru": "الروسية (Русский)",
+        "lang_zh": "الصينية (中文)",
+        "lang_ja": "اليابانية (日本語)",
+        "lang_ar": "العربية",
+        "biz_small": "صاحب عمل صغير",
+        "biz_agency": "صاحب وكالة",
+        "biz_ecom": "التجارة الإلكترونية",
+        "biz_freelance": "مستقل / صاحب عمل فردي",
+        "team_1": "وحدي فقط (فرد)",
+        "team_2": "2-5 موظفين",
+        "team_3": "6-20 موظف",
+        "team_4": "20+ موظف",
+        "goal_leads": "توليد المزيد من العملاء المحتملين",
+        "goal_support": "تحسين دعم العملاء",
+        "goal_admin": "أتمتة المهام الإدارية",
+        "goal_sales": "تبسيط عملية المبيعات",
+        "nav_hunti": "Hunti AI",
+        "nav_analytics": "لوحة التحليلات",
+        "nav_pitches": "البريد الإلكتروني للعروض",
+        "sidebar_title": "ملف المستخدم",
+        "reset_prefs": "إعادة تعيين التفضيلات",
+        "total_req": "إجمالي الطلبات",
+        "req_hour": "الطلبات (آخر ساعة)",
+        "hunti_title": "Hunti AI - مستشار المبيعات الذكي الخاص بك",
+        "hunti_welcome": "مرحبًا! أنا هنا لمساعدتك في أتمتة عملك وتوفير الوقت.",
+        "hunti_sub": "أخبرني عن تحدياتك وسأريك كيف يمكن للذكاء الاصطناعي حلها.",
+        "hunti_input": "ما التحدي الذي تواجهه؟",
+        "analytics_title": "لوحة التحليلات",
+        "analytics_sub": "مقاييس الأداء في الوقت الفعلي لحملات الأتمتة الخاصة بك.",
+        "total_leads": "إجمالي العملاء المحتملين",
+        "pitches_gen": "العروض المُنشأة",
+        "emails_sent": "البريد الإلكتروني المرسل",
+        "forms_sub": "النماذج المرسلة",
+        "activity_overview": "نظرة عامة على النشاط",
+        "email_status": "حالة تسليم البريد الإلكتروني",
+        "recent_activity": "سجل النشاط الأخير",
+        "db_records": "سجلات قاعدة البيانات",
+        "pitch_title": "البريد الإلكتروني للعروض التلقائي",
+        "pitch_sub": "قم بإنشاء وإرسال عروض مبيعات مخصصة لعملائك المحتملين تلقائيًا.",
+        "pitch_info": "كيف يعمل: اختر العملاء المحتملين من قاعدة البيانات الخاصة بك، وسيقوم Hunti بإنشاء عروض مخصصة وإرسالها عبر البريد الإلكتروني.",
+        "avail_leads": "العملاء المحتملين المتاحين",
+        "btn_gen_pitch": "إنشاء العروض",
+        "btn_view_pitch": "عرض العروض المُنشأة",
+        "success_gen": "تم إنشاء العروض بنجاح!",
+        "no_leads": "لم يتم العثور على عملاء محتملين. أضف بعض العملاء المحتملين أولاً!",
+        "no_pitches": "لم يتم إنشاء عروض بعد. انقر على 'إنشاء العروض' لإنشائها.",
+        "footer": "2026 Hunti AI Solutions. جميع الحقوق محفوظة.",
+        "loading": "جاري التحميل...",
+        "generating_dashboard": "جاري إنشاء لوحة التحكم المخصصة الخاصة بك...",
+        "generating": "جاري الإنشاء...",
+        "suggestions": {
+            "صاحب عمل صغير": [
+                "أنا غارق في رسائل البريد الإلكتروني ولا أستطيع الرد بسرعة كافية",
+                "فريقي يضيع ساعات في المهام اليدوية المتكررة",
+                "أحتاج إلى توليد المزيد من العملاء المحتملين لكن ليس لدي وقت",
+                "أريد أتمتة متابعة عملائي"
+            ],
+            "صاحب وكالة": [
+                "فريقي يقضي الكثير من الوقت في دمج العملاء",
+                "نحتاج إلى أتمتة إنشاء العروض",
+                "أريد تبسيط عملية إعداد تقارير العملاء",
+                "نحن نكافح من أجل إدارة اتصالات متعددة مع العملاء"
+            ],
+            "التجارة الإلكترونية": [
+                "أحتاج إلى أتمتة تأكيدات الطلبات والتتبع",
+                "العملاء يطرحون نفس الأسئلة بشكل متكرر",
+                "أريد أتمتة تحديثات المخزون والإشعارات",
+                "أحتاج إلى طرق أفضل لجمع والرد على التقييمات"
+            ],
+            "مستقل / صاحب عمل فردي": [
+                "أقضي الكثير من الوقت في الإدارة بدلاً من العمل القابل للفوترة",
+                "أحتاج إلى أتمتة عملية اكتشاف العملاء",
+                "أريد أتمتة الفواتير وتذكيرات الدفع",
+                "أحتاج إلى مساعدة في العثور على وتأهيل عملاء جدد"
+            ]
+        }
     }
 }
-
-# Add more language translations (simplified versions for demo)
-for lang_code in ["fr", "de", "it", "pt", "ru", "zh", "ja", "ar"]:
-    if lang_code not in T:
-        T[lang_code] = T["en"].copy()
-        T[lang_code]["onboarding_title"] = f"Welcome (Translate to {lang_code})"
 
 # --- SESSION STATE INITIALIZATION ---
 if 'onboarding_complete' not in st.session_state:
@@ -312,6 +1072,10 @@ if 'language' not in st.session_state:
     st.session_state.language = 'en'
 if 'business_type' not in st.session_state:
     st.session_state.business_type = 'Small Business Owner'
+if 'team_size' not in st.session_state:
+    st.session_state.team_size = 'Just me (Solo)'
+if 'automation_goal' not in st.session_state:
+    st.session_state.automation_goal = 'Generate more leads'
 if 'chat_history' not in st.session_state: 
     st.session_state.chat_history = []
 if 'user_id' not in st.session_state: 
@@ -322,8 +1086,6 @@ if 'target_page' not in st.session_state:
     st.session_state.target_page = None
 if 'dashboard_generating' not in st.session_state:
     st.session_state.dashboard_generating = False
-if 'lang_search' not in st.session_state:
-    st.session_state.lang_search = ""
 
 DB_NAME = "hunti.db"
 
@@ -401,8 +1163,13 @@ if not st.session_state.onboarding_complete:
             st.session_state.temp_lang = 'en'
         if 'temp_business' not in st.session_state:
             st.session_state.temp_business = 'Small Business Owner'
+        if 'temp_team' not in st.session_state:
+            st.session_state.temp_team = 'Just me (Solo)'
+        if 'temp_goal' not in st.session_state:
+            st.session_state.temp_goal = 'Generate more leads'
         
-        # Language options with codes
+        # Language selection - REMOVED SEARCH FIELD
+        st.markdown(f"**{t('q1_lang')}**")
         lang_options = {
             "English": "en",
             "Magyar": "hu",
@@ -417,63 +1184,103 @@ if not st.session_state.onboarding_complete:
             "العربية": "ar"
         }
         
-        # Search field integrated into language selection
-        st.markdown(f"**{t('select_lang')}**")
-        lang_search = st.text_input(
-            "Search languages...",
-            value=st.session_state.lang_search,
-            placeholder="Type to filter...",
-            key="lang_search_input",
-            label_visibility="collapsed"
-        )
-        st.session_state.lang_search = lang_search
-        
-        # Filter languages based on search
-        if lang_search:
-            filtered_langs = {k: v for k, v in lang_options.items() if lang_search.lower() in k.lower()}
-        else:
-            filtered_langs = lang_options
-        
         selected_lang_name = st.selectbox(
             "Language",
-            list(filtered_langs.keys()),
-            index=list(filtered_langs.keys()).index("Magyar") if "Magyar" in filtered_langs and st.session_state.temp_lang == 'hu' else 
-                   list(filtered_langs.keys()).index("Español") if "Español" in filtered_langs and st.session_state.temp_lang == 'es' else 0,
+            list(lang_options.keys()),
+            index=list(lang_options.keys()).index("Magyar") if st.session_state.temp_lang == 'hu' else 
+                   list(lang_options.keys()).index("Español") if st.session_state.temp_lang == 'es' else 0,
             key="onboarding_lang",
             label_visibility="collapsed"
         )
-        st.session_state.temp_lang = filtered_langs[selected_lang_name]
+        st.session_state.temp_lang = lang_options[selected_lang_name]
         st.session_state.language = st.session_state.temp_lang
         
+        # Question 2: Business Type
+        st.markdown(f"**{t('q2_business')}**")
         biz_options_en = ["Small Business Owner", "Agency Owner", "E-commerce", "Freelancer / Solopreneur"]
         biz_options_hu = ["Kisvállalkozás Tulajdonos", "Ügynökség Tulajdonos", "E-kereskedelem", "Szabadúszó / Egyéni Vállalkozó"]
         biz_options_es = ["Propietario de Pequeña Empresa", "Propietario de Agencia", "Comercio Electrónico", "Autónomo / Emprendedor"]
+        biz_options_fr = ["Propriétaire de Petite Entreprise", "Propriétaire d'Agence", "Commerce Électronique", "Indépendant / Auto-entrepreneur"]
+        biz_options_de = ["Kleinunternehmer", "Agenturinhaber", "E-Commerce", "Freiberufler / Solo-Unternehmer"]
+        biz_options_it = ["Proprietario di Piccola Impresa", "Proprietario di Agenzia", "E-commerce", "Freelance / Imprenditore Solitario"]
+        biz_options_pt = ["Proprietário de Pequena Empresa", "Proprietário de Agência", "Comércio Eletrônico", "Autônomo / Empreendedor Individual"]
+        biz_options_ru = ["Владелец малого бизнеса", "Владелец агентства", "Электронная коммерция", "Фрилансер / Индивидуальный предприниматель"]
+        biz_options_zh = ["小企业主", "代理机构所有者", "电子商务", "自由职业者/个体经营者"]
+        biz_options_ja = ["小規模事業者", "エージェンシーオーナー", "Eコマース", "フリーランス/個人事業主"]
+        biz_options_ar = ["صاحب عمل صغير", "صاحب وكالة", "التجارة الإلكترونية", "مستقل / صاحب عمل فردي"]
         
         if st.session_state.language == 'hu':
             biz_options = biz_options_hu
         elif st.session_state.language == 'es':
             biz_options = biz_options_es
+        elif st.session_state.language == 'fr':
+            biz_options = biz_options_fr
+        elif st.session_state.language == 'de':
+            biz_options = biz_options_de
+        elif st.session_state.language == 'it':
+            biz_options = biz_options_it
+        elif st.session_state.language == 'pt':
+            biz_options = biz_options_pt
+        elif st.session_state.language == 'ru':
+            biz_options = biz_options_ru
+        elif st.session_state.language == 'zh':
+            biz_options = biz_options_zh
+        elif st.session_state.language == 'ja':
+            biz_options = biz_options_ja
+        elif st.session_state.language == 'ar':
+            biz_options = biz_options_ar
         else:
             biz_options = biz_options_en
         
         selected_biz = st.selectbox(
-            t("select_business"), 
-            biz_options, 
+            "Business Type",
+            biz_options,
             index=0,
-            key="onboarding_biz"
+            key="onboarding_biz",
+            label_visibility="collapsed"
         )
         st.session_state.temp_business = selected_biz
+        
+        # Question 3: Team Size
+        st.markdown(f"**{t('q3_team')}**")
+        team_options = [t("team_1"), t("team_2"), t("team_3"), t("team_4")]
+        selected_team = st.selectbox(
+            "Team Size",
+            team_options,
+            index=0,
+            key="onboarding_team",
+            label_visibility="collapsed"
+        )
+        st.session_state.temp_team = selected_team
+        
+        # Question 4: Automation Goal
+        st.markdown(f"**{t('q4_goal')}**")
+        goal_options = [t("goal_leads"), t("goal_support"), t("goal_admin"), t("goal_sales")]
+        selected_goal = st.selectbox(
+            "Automation Goal",
+            goal_options,
+            index=0,
+            key="onboarding_goal",
+            label_visibility="collapsed"
+        )
+        st.session_state.temp_goal = selected_goal
         
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button(t("btn_start"), type="primary", use_container_width=True, key="btn_onboard"):
             st.session_state.language = st.session_state.temp_lang
             st.session_state.business_type = st.session_state.temp_business
+            st.session_state.team_size = st.session_state.temp_team
+            st.session_state.automation_goal = st.session_state.temp_goal
             st.session_state.onboarding_complete = True
             st.session_state.dashboard_generating = True
             if 'temp_lang' in st.session_state:
                 del st.session_state.temp_lang
             if 'temp_business' in st.session_state:
                 del st.session_state.temp_business
+            if 'temp_team' in st.session_state:
+                del st.session_state.temp_team
+            if 'temp_goal' in st.session_state:
+                del st.session_state.temp_goal
             st.rerun()
     st.stop()
 
@@ -515,6 +1322,8 @@ st.divider()
 with st.sidebar:
     st.title(t("sidebar_title"))
     st.write(f"**Business Type:** {st.session_state.business_type}")
+    st.write(f"**Team Size:** {st.session_state.team_size}")
+    st.write(f"**Goal:** {st.session_state.automation_goal}")
     st.write(f"User ID: `{st.session_state.user_id}`")
     
     if st.button(t("reset_prefs"), use_container_width=True, key="btn_reset"):
@@ -522,7 +1331,8 @@ with st.sidebar:
         st.session_state.chat_history = []
         st.session_state.language = 'en'
         st.session_state.business_type = 'Small Business Owner'
-        st.session_state.lang_search = ""
+        st.session_state.team_size = 'Just me (Solo)'
+        st.session_state.automation_goal = 'Generate more leads'
         st.rerun()
     
     st.divider()
