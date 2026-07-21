@@ -12,6 +12,43 @@ from rate_limiter import check_rate_limit, get_usage_stats
 
 st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
 
+# --- CSS FOR LOADING OVERLAY ---
+st.markdown("""
+    <style>
+        .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
+        .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
+        .metric-card p { margin: 0; color: #888; }
+        .stButton>button { transition: all 0.2s; }
+        .stButton>button:active { transform: scale(0.98); }
+        
+        /* Loading overlay styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- TRANSLATION DICTIONARY ---
 T = {
     "en": {
@@ -173,8 +210,8 @@ if 'user_id' not in st.session_state:
     st.session_state.user_id = f"user_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
 if 'page' not in st.session_state:
     st.session_state.page = "Hunti AI"
-if 'loading_page' not in st.session_state:
-    st.session_state.loading_page = False
+if 'target_page' not in st.session_state:
+    st.session_state.target_page = None
 
 DB_NAME = "hunti.db"
 
@@ -227,14 +264,12 @@ def get_data(query):
 
 # --- ONBOARDING PAGE ---
 if not st.session_state.onboarding_complete:
-    # Use columns for centering
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.title(t("onboarding_title"))
         st.markdown(f"*{t('onboarding_subtitle')}*")
         st.divider()
         
-        # Store selections in temporary session state
         if 'temp_lang' not in st.session_state:
             st.session_state.temp_lang = 'en'
         if 'temp_business' not in st.session_state:
@@ -248,8 +283,6 @@ if not st.session_state.onboarding_complete:
             key="onboarding_lang"
         )
         st.session_state.temp_lang = lang_options[selected_lang_name]
-        
-        # Update language immediately for dynamic labels
         st.session_state.language = st.session_state.temp_lang
         
         biz_options_en = ["Small Business Owner", "Agency Owner", "E-commerce", "Freelancer / Solopreneur"]
@@ -267,11 +300,9 @@ if not st.session_state.onboarding_complete:
         
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button(t("btn_start"), type="primary", use_container_width=True, key="btn_onboard"):
-            # Set final values
             st.session_state.language = st.session_state.temp_lang
             st.session_state.business_type = st.session_state.temp_business
             st.session_state.onboarding_complete = True
-            # Clear temp values
             if 'temp_lang' in st.session_state:
                 del st.session_state.temp_lang
             if 'temp_business' in st.session_state:
@@ -279,39 +310,42 @@ if not st.session_state.onboarding_complete:
             st.rerun()
     st.stop()
 
-# --- MAIN APP WITH LOADING ---
-if st.session_state.loading_page:
-    with st.spinner(t("loading")):
-        time.sleep(0.3)  # Small delay to show loading
-        st.session_state.loading_page = False
-        st.rerun()
-
-st.markdown("""
-    <style>
-        .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
-        .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
-        .metric-card p { margin: 0; color: #888; }
-        .stButton>button { transition: all 0.2s; }
-        .stButton>button:active { transform: scale(0.98); }
-    </style>
-""", unsafe_allow_html=True)
-
-# Top Navigation with loading state
-def change_page(page_name):
-    st.session_state.loading_page = True
-    st.session_state.page = page_name
+# --- PAGE TRANSITION HANDLER ---
+if st.session_state.target_page and st.session_state.target_page != st.session_state.page:
+    # Show loading overlay
+    st.markdown("""
+        <div class="loading-overlay">
+            <div>
+                <div class="loading-spinner"></div>
+                <p style="color: white; margin-top: 20px; font-size: 18px;">""" + t("loading") + """</p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Small delay to show loading
+    time.sleep(0.5)
+    
+    # Update to target page
+    st.session_state.page = st.session_state.target_page
+    st.session_state.target_page = None
     st.rerun()
 
+# --- MAIN APP ---
+def navigate_to_page(page_name):
+    """Set target page for smooth transition"""
+    st.session_state.target_page = page_name
+
+# Top Navigation
 col_nav1, col_nav2, col_nav3 = st.columns(3)
 with col_nav1:
-    if st.button(t("nav_hunti"), use_container_width=True, key="btn_hunti", disabled=st.session_state.loading_page):
-        change_page("Hunti AI")
+    if st.button(t("nav_hunti"), use_container_width=True, key="btn_hunti"):
+        navigate_to_page("Hunti AI")
 with col_nav2:
-    if st.button(t("nav_analytics"), use_container_width=True, key="btn_analytics", disabled=st.session_state.loading_page):
-        change_page("Analytics")
+    if st.button(t("nav_analytics"), use_container_width=True, key="btn_analytics"):
+        navigate_to_page("Analytics")
 with col_nav3:
-    if st.button(t("nav_pitches"), use_container_width=True, key="btn_pitches", disabled=st.session_state.loading_page):
-        change_page("Pitch Emailer")
+    if st.button(t("nav_pitches"), use_container_width=True, key="btn_pitches"):
+        navigate_to_page("Pitch Emailer")
 
 st.divider()
 
