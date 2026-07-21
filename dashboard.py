@@ -55,7 +55,6 @@ T = {
         "onboarding_title": "Welcome to Hunti AI Solutions",
         "onboarding_subtitle": "Let's personalize your automation dashboard in just a few seconds.",
         "select_lang": "Select your preferred language",
-        "search_lang": "Search for your language...",
         "select_business": "What best describes your business?",
         "btn_start": "Generate My Dashboard",
         "lang_en": "English",
@@ -138,7 +137,6 @@ T = {
         "onboarding_title": "Üdvözöljük a Hunti AI Solutions-nél",
         "onboarding_subtitle": "Személyre szabjuk az automatizálási irányítópultját néhány másodperc alatt.",
         "select_lang": "Válassza ki a preferált nyelvet",
-        "search_lang": "Nyelv keresése...",
         "select_business": "Mi írja le legjobban a vállalkozását?",
         "btn_start": "Irányítópult Generálása",
         "lang_en": "Angol (English)",
@@ -221,7 +219,6 @@ T = {
         "onboarding_title": "Bienvenido a Hunti AI Solutions",
         "onboarding_subtitle": "Personalicemos su panel de automatización en unos segundos.",
         "select_lang": "Seleccione su idioma preferido",
-        "search_lang": "Buscar idioma...",
         "select_business": "¿Qué describe mejor su negocio?",
         "btn_start": "Generar Mi Panel",
         "lang_en": "Inglés (English)",
@@ -325,6 +322,8 @@ if 'target_page' not in st.session_state:
     st.session_state.target_page = None
 if 'dashboard_generating' not in st.session_state:
     st.session_state.dashboard_generating = False
+if 'lang_search' not in st.session_state:
+    st.session_state.lang_search = ""
 
 DB_NAME = "hunti.db"
 
@@ -403,7 +402,7 @@ if not st.session_state.onboarding_complete:
         if 'temp_business' not in st.session_state:
             st.session_state.temp_business = 'Small Business Owner'
         
-        # Language selection with search
+        # Language options with codes
         lang_options = {
             "English": "en",
             "Magyar": "hu",
@@ -418,8 +417,16 @@ if not st.session_state.onboarding_complete:
             "العربية": "ar"
         }
         
-        # Search field for language
-        lang_search = st.text_input(t("search_lang"), placeholder="Type to search...", key="lang_search")
+        # Search field integrated into language selection
+        st.markdown(f"**{t('select_lang')}**")
+        lang_search = st.text_input(
+            "Search languages...",
+            value=st.session_state.lang_search,
+            placeholder="Type to filter...",
+            key="lang_search_input",
+            label_visibility="collapsed"
+        )
+        st.session_state.lang_search = lang_search
         
         # Filter languages based on search
         if lang_search:
@@ -428,11 +435,12 @@ if not st.session_state.onboarding_complete:
             filtered_langs = lang_options
         
         selected_lang_name = st.selectbox(
-            t("select_lang"), 
+            "Language",
             list(filtered_langs.keys()),
             index=list(filtered_langs.keys()).index("Magyar") if "Magyar" in filtered_langs and st.session_state.temp_lang == 'hu' else 
                    list(filtered_langs.keys()).index("Español") if "Español" in filtered_langs and st.session_state.temp_lang == 'es' else 0,
-            key="onboarding_lang"
+            key="onboarding_lang",
+            label_visibility="collapsed"
         )
         st.session_state.temp_lang = filtered_langs[selected_lang_name]
         st.session_state.language = st.session_state.temp_lang
@@ -461,13 +469,11 @@ if not st.session_state.onboarding_complete:
             st.session_state.language = st.session_state.temp_lang
             st.session_state.business_type = st.session_state.temp_business
             st.session_state.onboarding_complete = True
-            st.session_state.dashboard_generating = True  # Trigger dashboard generation loading
+            st.session_state.dashboard_generating = True
             if 'temp_lang' in st.session_state:
                 del st.session_state.temp_lang
             if 'temp_business' in st.session_state:
                 del st.session_state.temp_business
-            if 'lang_search' in st.session_state:
-                del st.session_state.lang_search
             st.rerun()
     st.stop()
 
@@ -489,7 +495,7 @@ if st.session_state.target_page and st.session_state.target_page != st.session_s
 # --- MAIN APP ---
 def navigate_to_page(page_name):
     st.session_state.target_page = page_name
-    st.rerun()  # Force immediate rerun
+    st.rerun()
 
 # Top Navigation
 col_nav1, col_nav2, col_nav3 = st.columns(3)
@@ -516,6 +522,7 @@ with st.sidebar:
         st.session_state.chat_history = []
         st.session_state.language = 'en'
         st.session_state.business_type = 'Small Business Owner'
+        st.session_state.lang_search = ""
         st.rerun()
     
     st.divider()
