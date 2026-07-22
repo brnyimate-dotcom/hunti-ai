@@ -619,31 +619,56 @@ elif st.session_state.page == "Pitch Emailer":
     
     st.info(t("pitch_info"))
     
+    # Check if we're in demo mode
+    is_demo = not os.path.exists(DB_NAME)
+    
     leads_df = get_data("SELECT * FROM leads ORDER BY created_at DESC")
     if not leads_df.empty:
         st.subheader(t("avail_leads"))
         st.dataframe(leads_df, use_container_width=True)
         
         st.divider()
+        
+        # Initialize session state for generated pitches
+        if 'demo_pitches' not in st.session_state:
+            st.session_state.demo_pitches = []
+        
         col1, col2 = st.columns(2)
         with col1:
             if st.button(t("btn_gen_pitch"), type="primary", use_container_width=True, key="btn_generate_pitches"):
                 try:
                     with st.spinner(t("generating")):
-                        if os.path.exists(DB_NAME):
+                        if is_demo:
+                            # Generate demo pitches for demo companies
+                            demo_companies = leads_df['company_name'].tolist() if 'company_name' in leads_df.columns else ['Acme Corp', 'Tech Solutions']
+                            demo_pitches = []
+                            for company in demo_companies:
+                                pitch = f"Dear {company} Team,\n\nI noticed your business could benefit from AI-powered automation. Our solution can help you save 10-15 hours per week on repetitive tasks like email management, data entry, and customer follow-ups.\n\nWe've helped similar companies increase their efficiency by 30% while reducing manual work. Would you be interested in a free 15-minute consultation to see how we can help your team?\n\nBest regards,\nHunti AI Solutions"
+                                demo_pitches.append({"company": company, "pitch": pitch})
+                            
+                            st.session_state.demo_pitches = demo_pitches
+                            st.success(f"{t('success_gen')} ({len(demo_pitches)})")
+                        else:
                             pitches = build_pitches()
                             st.success(f"{t('success_gen')} ({len(pitches)})")
-                        else:
-                            st.success(f"{t('success_gen')} (Demo Mode)")
                         st.rerun()
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
         
         with col2:
             if st.button(t("btn_view_pitch"), use_container_width=True, key="btn_view_pitches"):
-                pitches_df = get_data("SELECT * FROM pitches ORDER BY created_at DESC")
-                if not pitches_df.empty: st.dataframe(pitches_df, use_container_width=True)
-                else: st.info(t("no_pitches"))
+                if is_demo and st.session_state.demo_pitches:
+                    # Show demo pitches
+                    for item in st.session_state.demo_pitches:
+                        st.markdown(f"**{item['company']}**")
+                        st.text_area("Pitch", item['pitch'], height=150, key=f"pitch_{item['company']}", disabled=True)
+                        st.divider()
+                else:
+                    pitches_df = get_data("SELECT * FROM pitches ORDER BY created_at DESC")
+                    if not pitches_df.empty:
+                        st.dataframe(pitches_df, use_container_width=True)
+                    else:
+                        st.info(t("no_pitches"))
     else:
         st.warning(t("no_leads"))
 
