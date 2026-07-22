@@ -35,6 +35,15 @@ def load_business_profile() -> Dict[str, Any]:
         return None
 
 
+def load_demo_leads() -> List[Dict[str, Any]]:
+    """Loads leads from the demo JSON file if the real database is missing."""
+    try:
+        with open("demo_leads.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+
 def save_leads_to_db(leads: List[Dict[str, Any]]) -> int:
     """Save leads to the database and return the count."""
     conn = get_connection()
@@ -60,7 +69,11 @@ def save_leads_to_db(leads: List[Dict[str, Any]]) -> int:
 
 
 def get_all_leads_from_db() -> List[Dict[str, Any]]:
-    """Retrieve all leads from the database."""
+    """Retrieve all leads from the database, or fallback to demo data."""
+    # If the real database doesn't exist (e.g., on Streamlit Cloud), use demo data
+    if not os.path.exists("hunti.db"):
+        return load_demo_leads()
+        
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM leads ORDER BY created_at DESC')
@@ -72,6 +85,9 @@ def get_all_leads_from_db() -> List[Dict[str, Any]]:
 
 def get_lead_count_from_db() -> int:
     """Get total number of leads."""
+    if not os.path.exists("hunti.db"):
+        return len(load_demo_leads())
+        
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT COUNT(*) FROM leads')
@@ -116,17 +132,20 @@ def generate_pitch(client: Groq, lead: Dict[str, Any]) -> str:
     if not pitch_text:
         raise RuntimeError(f"Groq response did not include text for lead {lead.get('company_name', 'unknown')}")
     
-    # Save pitch to database
+    # Save pitch to database (only if database exists)
     lead_id = lead.get('id')
-    if lead_id:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO pitches (lead_id, pitch_text)
-            VALUES (?, ?)
-        ''', (lead_id, pitch_text.strip()))
-        conn.commit()
-        conn.close()
+    if lead_id and os.path.exists("hunti.db"):
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO pitches (lead_id, pitch_text)
+                VALUES (?, ?)
+            ''', (lead_id, pitch_text.strip()))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Could not save pitch to database: {e}")
     
     return pitch_text.strip()
 
@@ -167,6 +186,9 @@ def build_pitches(
 
 def get_pitches_from_db() -> List[Dict[str, Any]]:
     """Get all pitches with their associated lead info."""
+    if not os.path.exists("hunti.db"):
+        return []
+        
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -182,6 +204,10 @@ def get_pitches_from_db() -> List[Dict[str, Any]]:
 
 def log_email_sent(pitch_id: int, recipient_email: str, subject: str) -> None:
     """Log that an email was sent."""
+    if not os.path.exists("hunti.db"):
+        print(f"Demo mode: Would send email to {recipient_email}")
+        return
+        
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''

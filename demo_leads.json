@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "company_name": "Acme Corp",
+    "address": "123 Innovation Dr",
+    "website": "acme.com",
+    "phone": "555-0100",
+    "rating": 4.5
+  },
+  {
+    "id": 2,
+    "company_name": "Tech Solutions",
+    "address": "456 Silicon Ave",
+    "website": "techsol.com",
+    "phone": "555-0101",
+    "rating": 3.8
+  },
+  {
+    "id": 3,
+    "company_name": "Global Logistics",
+    "address": "789 Supply Chain Blvd",
+    "website": "globallog.com",
+    "phone": "555-0102",
+    "rating": 4.2
+  }
+]
