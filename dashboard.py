@@ -111,7 +111,7 @@ T = {
         "nav_hunti": "AI Tanácsadó", "nav_analytics": "Analitikai Irányítópult", "nav_pitches": "Pitch Küldő", "sidebar_title": "Az Ön Kontextusa", "reset_prefs": "Beállítások visszaállítása",
         "total_req": "Összes kérés", "req_hour": "Kérések (óra)",
         "hunti_title": "Hunti AI: Az Eszközépítő Bemutatója", 
-        "hunti_welcome": "Üdvözöllek. Egyedi AI automatizációkat építek, amelyek időt takarítanak meg, leadet generálnak és megszüntetik a manuális munkát. Ez a platform a képességeim élő demonstrációja.", 
+        "hunti_welcome": "Üdvözöllek. Egyedi AI Automatizációkat építek, amelyek időt takarítanak meg, leadet generálnak és megszüntetik a manuális munkát. Ez a platform a képességeim élő demonstrációja.", 
         "hunti_sub": "Mesélj az üzleti kihívásaidról, és megmutatom, hogyan oldhatják meg őket az eszközeim.", 
         "hunti_input": "Milyen üzleti kihívással néz szembe?",
         "analytics_title": "Analitikai Irányítópult", "analytics_sub": "Az automatizációs eszközök valós idejű teljesítménymutatói.",
