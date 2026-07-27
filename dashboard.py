@@ -10,73 +10,38 @@ import json
 from brain import ask_assistant, init_groq_client, generate_pitch
 from rate_limiter import check_rate_limit, get_usage_stats
 
-st.set_page_config(page_title="Hunti AI - Toolmaker Showcase", page_icon="🛠️", layout="wide")
+st.set_page_config(page_title="Hunti AI - Toolmaker Showcase", page_icon="️", layout="wide")
 
-# --- THEME & CSS ---
-# Initialize theme in session state (Light mode by default)
-if 'theme' not in st.session_state:
-    st.session_state.theme = 'light'
-
+# --- ENHANCED CSS WITH SLIDE TRANSITIONS (Dark Mode Only) ---
 st.markdown("""
     <style>
-        /* Light Mode (Default) */
-        :root {
-            --bg-primary: #ffffff;
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --card-bg: #f9fafb;
-            --card-border: #e5e7eb;
-            --metric-h3: #111827;
-            --metric-p: #6b7280;
-        }
-
-        /* Dark Mode */
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --card-bg: #1E1E1E;
-            --card-border: #333333;
-            --metric-h3: #ffffff;
-            --metric-p: #888888;
-        }
-
-        /* Apply to Streamlit containers */
-        .stApp {
-            background-color: var(--bg-primary) !important;
-            color: var(--text-primary) !important;
-        }
-        .main .block-container {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        /* Component Styles */
-        .metric-card { 
-            background-color: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin: 10px 0; 
-            border: 1px solid var(--card-border); 
-        }
-        .metric-card h3 { 
-            margin: 10px 0 5px 0; 
-            font-size: 2em; 
-            color: var(--metric-h3);
-        }
-        .metric-card p { 
-            margin: 0; 
-            color: var(--metric-p); 
-        }
+        /* Base Styles */
+        .metric-card { background-color: #1E1E1E; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #333; }
+        .metric-card h3 { margin: 10px 0 5px 0; font-size: 2em; }
+        .metric-card p { margin: 0; color: #888; }
         
+        /* Fix button spacing in columns */
         div[data-testid="column"] button { width: 100%; }
 
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Page Transition Animations */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
-        .page-content { animation: fadeIn 0.4s ease-out forwards; }
+        .page-content {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
 
+        /* Loading Overlay */
         .loading-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(15, 15, 15, 0.95); 
@@ -92,21 +57,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Inject theme script to apply data-theme attribute
-st.markdown(f"""
-<script>
-    document.body.setAttribute('data-theme', '{st.session_state.theme}');
-    const main = document.querySelector('.main');
-    if (main) main.setAttribute('data-theme', '{st.session_state.theme}');
-    const app = document.querySelector('.stApp');
-    if (app) app.setAttribute('data-theme', '{st.session_state.theme}');
-</script>
-""", unsafe_allow_html=True)
-
-# --- FULL TRANSLATION DICTIONARY ---
+# --- FULL TRANSLATION DICTIONARY (Refined for "Toolmaker Showcase") ---
 T = {
     "en": {
-        "dark_mode_toggle": "Dark Mode",
         "onboarding_title": "Welcome to the Hunti AI Toolkit", 
         "onboarding_subtitle": "I am a tool maker. Hunti is a live showcase of the custom AI automation tools I build to solve real business problems.",
         "q1_lang": "Select your preferred language", "q2_business": "What best describes your business?", "q3_team": "What's your team size?", "q4_goal": "What's your main automation goal?",
@@ -147,7 +100,6 @@ T = {
         }
     },
     "hu": {
-        "dark_mode_toggle": "Sötét mód",
         "onboarding_title": "Üdvözöllek a Hunti AI Eszköztárban", 
         "onboarding_subtitle": "Eszközépítő vagyok. A Hunti az általam fejlesztett, valós üzleti problémákat megoldó AI automatizációs eszközök élő bemutatója.",
         "q1_lang": "Válassza ki a nyelvet", "q2_business": "Mi írja le legjobban a vállalkozását?", "q3_team": "Mekkora a csapatméret?", "q4_goal": "Mi a fő automatizálási célja?",
@@ -188,7 +140,6 @@ T = {
         }
     },
     "es": {
-        "dark_mode_toggle": "Modo oscuro",
         "onboarding_title": "Bienvenido al Kit de Herramientas Hunti AI", 
         "onboarding_subtitle": "Soy un creador de herramientas. Hunti es una demostración en vivo de las herramientas de automatización con IA que construyo para resolver problemas empresariales reales.",
         "q1_lang": "Seleccione su idioma", "q2_business": "¿Qué describe mejor su negocio?", "q3_team": "¿Tamaño de su equipo?", "q4_goal": "¿Objetivo principal de automatización?",
@@ -228,8 +179,8 @@ T = {
             "Autónomo": ["Demasiada administración", "Automatizar descubrimiento", "Automatizar facturación", "Encontrar clientes"]
         }
     }
-    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) follow the same pattern. 
-    # Ensure you add the new keys (dark_mode_toggle, challenges_header, etc.) to those blocks in your actual file.
+    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) follow the same "Toolmaker Showcase" pattern. 
+    # For brevity, they are omitted here but should be updated similarly in your actual file.
 }
 
 # --- SESSION STATE ---
@@ -288,15 +239,6 @@ def get_data(query):
     except Exception as e:
         st.error(f"Database error: {e}")
         return pd.DataFrame()
-
-# --- THEME TOGGLE (Top Right) ---
-theme_col1, theme_col2 = st.columns([5, 1])
-with theme_col2:
-    is_dark = st.session_state.theme == 'dark'
-    new_theme = st.toggle(t("dark_mode_toggle"), value=is_dark, key="theme_toggle")
-    if new_theme != is_dark:
-        st.session_state.theme = 'dark' if new_theme else 'light'
-        st.rerun()
 
 # --- DASHBOARD GENERATION LOADING SCREEN ---
 if st.session_state.dashboard_generating:
@@ -376,7 +318,7 @@ if not st.session_state.onboarding_complete:
             st.rerun()
     st.stop()
 
-# --- RELIABLE NAVIGATION ---
+# --- RELIABLE NAVIGATION (Fixes Double-Click & Highlighting) ---
 def set_page(page_name):
     st.session_state.page = page_name
 
@@ -384,15 +326,33 @@ col_nav1, col_nav2, col_nav3 = st.columns(3)
 
 with col_nav1:
     is_active = st.session_state.page == "Hunti AI"
-    st.button(t("nav_hunti"), use_container_width=True, type="primary" if is_active else "secondary", on_click=set_page, args=("Hunti AI",))
+    st.button(
+        t("nav_hunti"), 
+        use_container_width=True, 
+        type="primary" if is_active else "secondary",
+        on_click=set_page, 
+        args=("Hunti AI",)
+    )
 
 with col_nav2:
     is_active = st.session_state.page == "Analytics"
-    st.button(t("nav_analytics"), use_container_width=True, type="primary" if is_active else "secondary", on_click=set_page, args=("Analytics",))
+    st.button(
+        t("nav_analytics"), 
+        use_container_width=True, 
+        type="primary" if is_active else "secondary",
+        on_click=set_page, 
+        args=("Analytics",)
+    )
 
 with col_nav3:
     is_active = st.session_state.page == "Pitch Emailer"
-    st.button(t("nav_pitches"), use_container_width=True, type="primary" if is_active else "secondary", on_click=set_page, args=("Pitch Emailer",))
+    st.button(
+        t("nav_pitches"), 
+        use_container_width=True, 
+        type="primary" if is_active else "secondary",
+        on_click=set_page, 
+        args=("Pitch Emailer",)
+    )
 
 st.divider()
 
@@ -528,7 +488,8 @@ elif st.session_state.page == "Pitch Emailer":
     st.markdown(t("pitch_sub"))
     st.divider()
     
-    with st.expander("📖 How to Use - Click to Expand Tutorial", expanded=True):
+    # Tutorial Section
+    with st.expander(" How to Use - Click to Expand Tutorial", expanded=True):
         st.markdown(f"""
         ### Welcome to the Pitch Emailer!
         
@@ -541,35 +502,55 @@ elif st.session_state.page == "Pitch Emailer":
         
         **Step 2: Generate Pitches**
         - Click "Generate Pitches" to create personalized AI-powered sales emails
+        - Each pitch is customized based on the company's website and industry
         
         **Step 3: View & Use**
-        - Review the generated pitches and copy them for your campaigns
+        - Review the generated pitches
+        - Copy them to use in your email campaigns
+        - All pitches are saved for this session
         """)
     
     st.divider()
     
-    uploaded_file = st.file_uploader("Upload your leads file (CSV or JSON)", type=["csv", "json"], help="Upload a CSV or JSON file with your lead information")
+    # File Upload Section
+    uploaded_file = st.file_uploader(
+        "Upload your leads file (CSV or JSON)",
+        type=["csv", "json"],
+        help="Upload a CSV or JSON file with your lead information"
+    )
     
     if uploaded_file is not None:
         try:
+            # Read the uploaded file
             if uploaded_file.name.endswith('.csv'):
                 leads_df = pd.read_csv(uploaded_file)
             else:
                 leads_df = pd.read_json(uploaded_file)
             
+            # Validate required columns
             if 'company_name' not in leads_df.columns:
                 st.error("❌ Error: File must contain a 'company_name' column")
                 st.stop()
             
-            for col in ['website', 'address', 'phone']:
-                if col not in leads_df.columns: leads_df[col] = ''
-            if 'rating' not in leads_df.columns: leads_df['rating'] = 0.0
+            # Add missing optional columns with defaults
+            if 'website' not in leads_df.columns:
+                leads_df['website'] = ''
+            if 'address' not in leads_df.columns:
+                leads_df['address'] = ''
+            if 'phone' not in leads_df.columns:
+                leads_df['phone'] = ''
+            if 'rating' not in leads_df.columns:
+                leads_df['rating'] = 0.0
             
             st.success(f"✅ Loaded {len(leads_df)} leads successfully!")
+            
+            # Display uploaded leads
             st.subheader(t("avail_leads"))
             st.dataframe(leads_df, use_container_width=True)
+            
             st.divider()
             
+            # Initialize session state for generated pitches
             if 'uploaded_pitches' not in st.session_state:
                 st.session_state.uploaded_pitches = []
             
@@ -578,13 +559,20 @@ elif st.session_state.page == "Pitch Emailer":
                 if st.button(t("btn_gen_pitch"), type="primary", use_container_width=True, key="btn_generate_pitches"):
                     with st.spinner(t("generating")):
                         try:
+                            # Convert dataframe to list of dicts
                             leads_list = leads_df.to_dict('records')
+                            
+                            # Generate pitches using brain.py
                             client = init_groq_client()
+                            
                             pitches = []
                             for lead in leads_list:
                                 try:
                                     pitch_text = generate_pitch(client, lead)
-                                    pitches.append({"company": lead.get('company_name', 'Unknown'), "pitch": pitch_text})
+                                    pitches.append({
+                                        "company": lead.get('company_name', 'Unknown'),
+                                        "pitch": pitch_text
+                                    })
                                 except Exception as e:
                                     st.warning(f"⚠️ Could not generate pitch for {lead.get('company_name', 'Unknown')}: {str(e)}")
                             
@@ -600,18 +588,35 @@ elif st.session_state.page == "Pitch Emailer":
                         st.subheader(t("generated_pitches"))
                         for item in st.session_state.uploaded_pitches:
                             st.markdown(f"**{item['company']}**")
-                            st.text_area(t("pitch_label"), item['pitch'], height=200, key=f"pitch_{item['company']}", disabled=True, label_visibility="collapsed")
+                            st.text_area(
+                                t("pitch_label"), 
+                                item['pitch'], 
+                                height=200, 
+                                key=f"pitch_{item['company']}", 
+                                disabled=True,
+                                label_visibility="collapsed"
+                            )
                             st.divider()
                         
+                        # Download button
                         pitches_json = json.dumps(st.session_state.uploaded_pitches, indent=2)
-                        st.download_button(label=t("download_json"), data=pitches_json, file_name="generated_pitches.json", mime="application/json", use_container_width=True)
+                        st.download_button(
+                            label=t("download_json"),
+                            data=pitches_json,
+                            file_name="generated_pitches.json",
+                            mime="application/json",
+                            use_container_width=True
+                        )
                     else:
                         st.info("💡 Click 'Generate Pitches' to create personalized pitches for your uploaded leads.")
         except Exception as e:
             st.error(f"❌ Error reading file: {str(e)}")
-            st.info("💡 Make sure your file is a valid CSV or JSON format")
+            st.info(" Make sure your file is a valid CSV or JSON format")
     else:
+        # Show sample when no file uploaded
         st.info("📄 **No file uploaded yet.** Upload a CSV or JSON file above to get started, or download the sample file to see the expected format.")
+        
+        # Show sample structure
         st.subheader(t("expected_format"))
         st.markdown(f"""
         {t("file_requirements")}
@@ -623,9 +628,17 @@ elif st.session_state.page == "Pitch Emailer":
         - {t("opt_phone")}
         - {t("opt_rating")}
         """)
-        sample_df = pd.DataFrame({'company_name': ['Acme Corp', 'Tech Solutions'], 'website': ['acme.com', 'techsol.com'], 'address': ['123 Innovation Dr', '456 Silicon Ave'], 'phone': ['555-0100', '555-0101'], 'rating': [4.5, 3.8]})
+        
+        sample_df = pd.DataFrame({
+            'company_name': ['Acme Corp', 'Tech Solutions'],
+            'website': ['acme.com', 'techsol.com'],
+            'address': ['123 Innovation Dr', '456 Silicon Ave'],
+            'phone': ['555-0100', '555-0101'],
+            'rating': [4.5, 3.8]
+        })
         st.dataframe(sample_df, use_container_width=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
+
 st.divider()
 st.markdown(t("footer"))
