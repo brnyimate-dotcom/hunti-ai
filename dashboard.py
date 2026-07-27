@@ -10,7 +10,7 @@ import json
 from brain import ask_assistant, init_groq_client, generate_pitch
 from rate_limiter import check_rate_limit, get_usage_stats
 
-st.set_page_config(page_title="Hunti AI - Command Center", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Hunti AI - Toolmaker Showcase", page_icon="🛠️", layout="wide")
 
 # --- ENHANCED CSS WITH SLIDE TRANSITIONS ---
 st.markdown("""
@@ -57,24 +57,29 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- FULL TRANSLATION DICTIONARY (11 LANGUAGES) ---
+# --- FULL TRANSLATION DICTIONARY (Refined for "Toolmaker Showcase") ---
 T = {
     "en": {
-        "onboarding_title": "Welcome to Hunti AI Solutions", "onboarding_subtitle": "Let's personalize your automation dashboard in just a few seconds.",
+        "onboarding_title": "Welcome to the Hunti AI Toolkit", 
+        "onboarding_subtitle": "I am a tool maker. Hunti is a live showcase of the custom AI automation tools I build to solve real business problems.",
         "q1_lang": "Select your preferred language", "q2_business": "What best describes your business?", "q3_team": "What's your team size?", "q4_goal": "What's your main automation goal?",
-        "btn_start": "Generate My Dashboard",
+        "btn_start": "Explore the Toolkit",
         "lang_en": "English", "lang_hu": "Hungarian (Magyar)", "lang_es": "Spanish (Español)", "lang_fr": "French (Français)", "lang_de": "German (Deutsch)", "lang_it": "Italian (Italiano)", "lang_pt": "Portuguese (Português)", "lang_ru": "Russian (Русский)", "lang_zh": "Chinese (中文)", "lang_ja": "Japanese (日本語)", "lang_ar": "Arabic (العربية)",
         "biz_small": "Small Business Owner", "biz_agency": "Agency Owner", "biz_ecom": "E-commerce", "biz_freelance": "Freelancer / Solopreneur",
         "team_1": "Just me (Solo)", "team_2": "2-5 employees", "team_3": "6-20 employees", "team_4": "20+ employees",
         "goal_leads": "Generate more leads", "goal_support": "Improve customer support", "goal_admin": "Automate admin tasks", "goal_sales": "Streamline sales process",
-        "nav_hunti": "Hunti AI", "nav_analytics": "Analytics Dashboard", "nav_pitches": "Pitch Emailer", "sidebar_title": "User Profile", "reset_prefs": "Reset Preferences",
+        "nav_hunti": "AI Consultant", "nav_analytics": "Analytics Dashboard", "nav_pitches": "Pitch Emailer", "sidebar_title": "Your Context", "reset_prefs": "Reset Preferences",
         "total_req": "Total Requests", "req_hour": "Requests (Last Hour)",
-        "hunti_title": "Hunti AI - Your Intelligent Sales Consultant", "hunti_welcome": "Welcome! I'm here to help you automate your business and save time.", "hunti_sub": "Tell me about your challenges, and I'll show you how AI can solve them.", "hunti_input": "What challenge are you facing?",
-        "analytics_title": "Analytics Dashboard", "analytics_sub": "Real-time performance metrics for your automation campaigns.",
+        "hunti_title": "Hunti AI: The Toolmaker's Showcase", 
+        "hunti_welcome": "Welcome. I build custom AI automations that save businesses time, generate leads, and eliminate manual work. This platform is a live demonstration of my capabilities.", 
+        "hunti_sub": "Tell me about your business challenges, and I'll demonstrate how my tools can solve them.", 
+        "hunti_input": "What business challenge are you facing?",
+        "analytics_title": "Analytics Dashboard", "analytics_sub": "Real-time performance metrics of the automation tools in action.",
         "total_leads": "Total Leads", "pitches_gen": "Pitches Generated", "emails_sent": "Emails Sent", "forms_sub": "Forms Submitted", "activity_overview": "Activity Overview", "email_status": "Email Delivery Status", "recent_activity": "Recent Activity Log", "db_records": "Database Records",
-        "pitch_title": "Automated Pitch Emailer", "pitch_sub": "Generate and send personalized sales pitches to your leads automatically.", "pitch_info": "How it works: Upload your leads, and Hunti will generate personalized AI-powered pitches for each one.",
+        "pitch_title": "Automated Pitch Emailer", "pitch_sub": "Upload your leads, and watch my tool generate personalized, AI-powered sales pitches instantly.", "pitch_info": "How it works: This is a live demo of my automation pipeline. Upload a file, and the system will process it using the same logic I build for my clients.",
         "avail_leads": "Available Leads", "btn_gen_pitch": "Generate Pitches", "btn_view_pitch": "View Generated Pitches", "success_gen": "Successfully generated pitches!", "no_leads": "No leads found. Upload a file first!", "no_pitches": "No pitches generated yet.",
-        "footer": "2026 Hunti AI Solutions. All rights reserved.", "loading": "Loading...", "generating_dashboard": "Generating your personalized dashboard...", "generating": "Generating...",
+        "footer": "© 2026 Máté Baranyai. Crafted with Python & AI.", 
+        "loading": "Loading...", "generating_dashboard": "Preparing your toolkit experience...", "generating": "Generating...",
         "suggestions": {
             "Small Business Owner": ["I'm drowning in emails", "My team wastes hours on manual tasks", "I need to generate more leads", "I want to automate customer follow-ups"],
             "Agency Owner": ["My team spends too much time on onboarding", "We need to automate proposals", "I want to streamline client reporting", "We struggle to manage client communications"],
@@ -83,21 +88,26 @@ T = {
         }
     },
     "hu": {
-        "onboarding_title": "Üdvözöljük a Hunti AI Solutions-nél", "onboarding_subtitle": "Személyre szabjuk az irányítópultját néhány másodperc alatt.",
+        "onboarding_title": "Üdvözöllek a Hunti AI Eszköztárban", 
+        "onboarding_subtitle": "Eszközépítő vagyok. A Hunti az általam fejlesztett, valós üzleti problémákat megoldó AI automatizációs eszközök élő bemutatója.",
         "q1_lang": "Válassza ki a nyelvet", "q2_business": "Mi írja le legjobban a vállalkozását?", "q3_team": "Mekkora a csapatméret?", "q4_goal": "Mi a fő automatizálási célja?",
-        "btn_start": "Irányítópult Generálása",
+        "btn_start": "Eszköztár Felfedezése",
         "lang_en": "Angol (English)", "lang_hu": "Magyar", "lang_es": "Spanyol", "lang_fr": "Francia", "lang_de": "Német", "lang_it": "Olasz", "lang_pt": "Portugál", "lang_ru": "Orosz", "lang_zh": "Kínai", "lang_ja": "Japán", "lang_ar": "Arab",
         "biz_small": "Kisvállalkozás Tulajdonos", "biz_agency": "Ügynökség Tulajdonos", "biz_ecom": "E-kereskedelem", "biz_freelance": "Szabadúszó",
         "team_1": "Egyedül vagyok", "team_2": "2-5 alkalmazott", "team_3": "6-20 alkalmazott", "team_4": "20+ alkalmazott",
         "goal_leads": "Több lead generálása", "goal_support": "Ügyféltámogatás javítása", "goal_admin": "Admin feladatok automatizálása", "goal_sales": "Értékesítés egyszerűsítése",
-        "nav_hunti": "Hunti AI", "nav_analytics": "Analitika", "nav_pitches": "Pitch Küldő", "sidebar_title": "Profil", "reset_prefs": "Beállítások visszaállítása",
+        "nav_hunti": "AI Tanácsadó", "nav_analytics": "Analitikai Irányítópult", "nav_pitches": "Pitch Küldő", "sidebar_title": "Az Ön Kontextusa", "reset_prefs": "Beállítások visszaállítása",
         "total_req": "Összes kérés", "req_hour": "Kérések (óra)",
-        "hunti_title": "Hunti AI - Intelligens Tanácsadó", "hunti_welcome": "Üdvözöljük! Segítek automatizálni a vállalkozását.", "hunti_sub": "Meséljen a kihívásairól, és megmutatom, hogyan oldhatja meg őket az AI.", "hunti_input": "Milyen kihívással néz szembe?",
-        "analytics_title": "Analitikai Irányítópult", "analytics_sub": "Valós idejű teljesítménymutatók.",
+        "hunti_title": "Hunti AI: Az Eszközépítő Bemutatója", 
+        "hunti_welcome": "Üdvözöllek. Egyedi AI automatizációkat építek, amelyek időt takarítanak meg, leadet generálnak és megszüntetik a manuális munkát. Ez a platform a képességeim élő demonstrációja.", 
+        "hunti_sub": "Mesélj az üzleti kihívásaidról, és megmutatom, hogyan oldhatják meg őket az eszközeim.", 
+        "hunti_input": "Milyen üzleti kihívással néz szembe?",
+        "analytics_title": "Analitikai Irányítópult", "analytics_sub": "Az automatizációs eszközök valós idejű teljesítménymutatói.",
         "total_leads": "Összes Lead", "pitches_gen": "Generált Pitch-ek", "emails_sent": "Elküldött Emailek", "forms_sub": "Kitöltött Űrlapok", "activity_overview": "Tevékenység", "email_status": "Email Státusz", "recent_activity": "Legutóbbi Aktivitás", "db_records": "Adatbázis",
-        "pitch_title": "Automatizált Pitch Küldő", "pitch_sub": "Generáljon és küldjön pitch-eket automatikusan.", "pitch_info": "Hogyan működik: Töltse fel leadjeit, és a Hunti személyre szabott, AI-alapú pitch-eket generál mindegyikhez.",
+        "pitch_title": "Automatizált Pitch Küldő", "pitch_sub": "Töltse fel leadjeit, és nézze meg, ahogy az eszközem azonnal személyre szabott, AI-alapú pitch-eket generál.", "pitch_info": "Hogyan működik: Ez az automatizálási folyamatom élő bemutatója. Töltsön fel egy fájlt, és a rendszer ugyanazzal a logikával dolgozza fel, amit az ügyfeleimnek is építek.",
         "avail_leads": "Elérhető Lead-ek", "btn_gen_pitch": "Pitch-ek Generálása", "btn_view_pitch": "Megtekintés", "success_gen": "Sikeresen generálva!", "no_leads": "Nincs lead! Töltsön fel egy fájlt!", "no_pitches": "Nincs pitch.",
-        "footer": "2026 Hunti AI Solutions.", "loading": "Betöltés...", "generating_dashboard": "Irányítópult generálása...", "generating": "Generálás...",
+        "footer": "© 2026 Baranyai Máté. Pythonnal és AI-val készítve.", 
+        "loading": "Betöltés...", "generating_dashboard": "Eszköztár előkészítése...", "generating": "Generálás...",
         "suggestions": {
             "Kisvállalkozás Tulajdonos": ["Elnyomnak az emailek", "A csapatom órákat pazarol", "Több lead kell", "Automatizálni akarom a követést"],
             "Ügynökség Tulajdonos": ["Túl sok idő az onboarding", "Automatizálnunk kell az ajánlatokat", "Jelentések egyszerűsítése", "Kliens kommunikáció kezelése"],
@@ -106,21 +116,26 @@ T = {
         }
     },
     "es": {
-        "onboarding_title": "Bienvenido a Hunti AI Solutions", "onboarding_subtitle": "Personalicemos su panel en unos segundos.",
+        "onboarding_title": "Bienvenido al Kit de Herramientas Hunti AI", 
+        "onboarding_subtitle": "Soy un creador de herramientas. Hunti es una demostración en vivo de las herramientas de automatización con IA que construyo para resolver problemas empresariales reales.",
         "q1_lang": "Seleccione su idioma", "q2_business": "¿Qué describe mejor su negocio?", "q3_team": "¿Tamaño de su equipo?", "q4_goal": "¿Objetivo principal de automatización?",
-        "btn_start": "Generar Mi Panel",
+        "btn_start": "Explorar el Kit",
         "lang_en": "Inglés", "lang_hu": "Húngaro", "lang_es": "Español", "lang_fr": "Francés", "lang_de": "Alemán", "lang_it": "Italiano", "lang_pt": "Portugués", "lang_ru": "Ruso", "lang_zh": "Chino", "lang_ja": "Japonés", "lang_ar": "Árabe",
         "biz_small": "Pequeña Empresa", "biz_agency": "Agencia", "biz_ecom": "E-commerce", "biz_freelance": "Autónomo",
         "team_1": "Solo yo", "team_2": "2-5 empleados", "team_3": "6-20 empleados", "team_4": "20+ empleados",
         "goal_leads": "Generar más leads", "goal_support": "Mejorar soporte", "goal_admin": "Automatizar admin", "goal_sales": "Optimizar ventas",
-        "nav_hunti": "Hunti AI", "nav_analytics": "Análisis", "nav_pitches": "Emailer", "sidebar_title": "Perfil", "reset_prefs": "Restablecer",
+        "nav_hunti": "Consultor IA", "nav_analytics": "Panel de Análisis", "nav_pitches": "Emailer", "sidebar_title": "Su Contexto", "reset_prefs": "Restablecer",
         "total_req": "Total Solicitudes", "req_hour": "Solicitudes (Hora)",
-        "hunti_title": "Hunti AI - Consultor Inteligente", "hunti_welcome": "¡Bienvenido! Estoy aquí para ayudarle.", "hunti_sub": "Cuénteme sus desafíos.", "hunti_input": "¿Qué desafío enfrenta?",
-        "analytics_title": "Panel de Análisis", "analytics_sub": "Métricas en tiempo real.",
+        "hunti_title": "Hunti AI: La Vitrina del Creador", 
+        "hunti_welcome": "Bienvenido. Construyo automatizaciones con IA a medida que ahorran tiempo, generan leads y eliminan el trabajo manual. Esta plataforma es una demostración en vivo de mis capacidades.", 
+        "hunti_sub": "Cuénteme sus desafíos empresariales y le demostraré cómo mis herramientas pueden resolverlos.", 
+        "hunti_input": "¿Qué desafío empresarial enfrenta?",
+        "analytics_title": "Panel de Análisis", "analytics_sub": "Métricas de rendimiento en tiempo real de las herramientas en acción.",
         "total_leads": "Total Leads", "pitches_gen": "Propuestas", "emails_sent": "Emails", "forms_sub": "Formularios", "activity_overview": "Actividad", "email_status": "Estado Emails", "recent_activity": "Actividad Reciente", "db_records": "Registros",
-        "pitch_title": "Emailer de Propuestas", "pitch_sub": "Genere y envíe propuestas automáticamente.", "pitch_info": "Cómo funciona: Suba sus leads y Hunti generará propuestas personalizadas con IA para cada uno.",
+        "pitch_title": "Emailer de Propuestas", "pitch_sub": "Suba sus leads y vea cómo mi herramienta genera propuestas personalizadas al instante.", "pitch_info": "Cómo funciona: Esta es una demo en vivo de mi pipeline. Suba un archivo y el sistema lo procesará con la misma lógica que uso para mis clientes.",
         "avail_leads": "Leads Disponibles", "btn_gen_pitch": "Generar", "btn_view_pitch": "Ver", "success_gen": "¡Generado!", "no_leads": "¡Sin leads! Suba un archivo primero.", "no_pitches": "Sin propuestas.",
-        "footer": "2026 Hunti AI Solutions.", "loading": "Cargando...", "generating_dashboard": "Generando panel...", "generating": "Generando...",
+        "footer": "© 2026 Máté Baranyai. Creado con Python e IA.", 
+        "loading": "Cargando...", "generating_dashboard": "Preparando su experiencia...", "generating": "Generando...",
         "suggestions": {
             "Pequeña Empresa": ["Me ahogo en emails", "Mi equipo pierde horas", "Necesito más leads", "Automatizar seguimiento"],
             "Agencia": ["Mucho tiempo en onboarding", "Automatizar propuestas", "Optimizar informes", "Gestionar comunicaciones"],
@@ -128,8 +143,8 @@ T = {
             "Autónomo": ["Demasiada administración", "Automatizar descubrimiento", "Automatizar facturación", "Encontrar clientes"]
         }
     }
-    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) are kept identical to previous structure for brevity, 
-    # but ensure you keep the full dictionary from your previous code here!
+    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) follow the same "Toolmaker Showcase" pattern. 
+    # For brevity, they are omitted here but should be updated similarly in your actual file.
 }
 
 # --- SESSION STATE ---
@@ -333,7 +348,7 @@ with st.sidebar:
     except: pass
     
     st.divider()
-    st.caption("Hunti AI Solutions")
+    st.caption("Built by Máté Baranyai | AI Toolmaker")
 
 # --- PAGE CONTENT ---
 if st.session_state.page == "Hunti AI":
