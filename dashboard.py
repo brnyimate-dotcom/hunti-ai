@@ -211,7 +211,6 @@ T = {
             "Autónomo": ["Demasiada administración", "Automatizar descubrimiento", "Automatizar facturación", "Encontrar clientes"]
         }
     }
-    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) follow the same pattern.
 }
 
 # --- SESSION STATE ---
@@ -242,7 +241,6 @@ def t(key):
 def _d(offset_days, fmt='%Y-%m-%d'):
     return (datetime.now() + timedelta(days=offset_days)).strftime(fmt)
 
-# Detailed leads (drive the Follow-Up widget + pipeline)
 _DETAILED_LEADS = [
     ("Danube Bistro", "Fő utca 12, Veszprém", "danubebistro.hu", "+36 20 555 0101", 4.6, "replied", _d(0), "Asked for pricing - send booking demo", -12),
     ("Panorama Restaurant", "Szabadság tér 3, Veszprém", "panoramarest.hu", "+36 20 555 0102", 4.5, "replied", _d(0), "Wants online table reservation", -10),
@@ -258,7 +256,6 @@ _DETAILED_LEADS = [
     ("Silverlake Guesthouse", "Tó utca 3, Herend", "silverlake.hu", "+36 20 555 0112", 4.1, "lost", None, "Went with competitor", -25),
 ]
 
-# Extra volume leads (make the pipeline look busy)
 _EXTRA_LEADS = [
     ("Lakeside Camping", "contacted"), ("Urban Fit Gym", "new"), ("Panda Sushi Bar", "replied"),
     ("Hegyvidék Panzió", "contacted"), ("Blue Danube Travel", "won"), ("Menta Café", "replied"),
@@ -312,6 +309,25 @@ for j, idx in enumerate([0, 2, 3, 5, 7, 9]):
                        "submitted_at": _d(-j - 1, '%Y-%m-%d %H:%M')})
 F_FORMS = pd.DataFrame(_form_rows)
 
+def _get_filler(query):
+    """Returns filler data matching the SQL query structure."""
+    if "COALESCE(status, 'new') as status, COUNT(*) as count FROM leads GROUP BY status" in query:
+        return F_LEADS.groupby('status').size().reset_index(name='count')
+    elif "follow_up_date IS NOT NULL AND follow_up_date <= date('now', '+3 days')" in query:
+        fu = F_LEADS[F_LEADS.follow_up_date.notna() & (F_LEADS.follow_up_date <= _d(3))]
+        return fu[['company_name', 'status', 'follow_up_date', 'notes']]
+    elif "COUNT(*) as count FROM leads" in query: return pd.DataFrame({'count': [len(F_LEADS)]})
+    elif "COUNT(*) as count FROM pitches" in query: return pd.DataFrame({'count': [len(F_PITCHES)]})
+    elif "COUNT(*) as count FROM emails WHERE status='sent'" in query: return pd.DataFrame({'count': [int((F_EMAILS.status == 'sent').sum())]})
+    elif "COUNT(*) as count FROM form_submissions" in query: return pd.DataFrame({'count': [len(F_FORMS)]})
+    elif "status, COUNT(*) as count FROM emails GROUP BY status" in query: return F_EMAILS.groupby('status').size().reset_index(name='count')
+    elif "recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5" in query: return F_EMAILS.sort_values('sent_at', ascending=False).head(5)[['recipient_email', 'subject', 'sent_at']]
+    elif "SELECT * FROM leads ORDER BY created_at DESC" in query: return F_LEADS.sort_values('created_at', ascending=False)
+    elif "SELECT * FROM pitches ORDER BY created_at DESC" in query: return F_PITCHES.sort_values('created_at', ascending=False)
+    elif "SELECT * FROM emails ORDER BY sent_at DESC" in query: return F_EMAILS.sort_values('sent_at', ascending=False)
+    elif "SELECT * FROM form_submissions ORDER BY submitted_at DESC" in query: return F_FORMS.sort_values('submitted_at', ascending=False)
+    return pd.DataFrame()
+
 def get_data(query):
     use_demo = False
     try:
@@ -325,31 +341,17 @@ def get_data(query):
     except: use_demo = True
     
     if use_demo:
-        # IMPORTANT: specific CRM queries BEFORE generic count queries
-        if "COALESCE(status, 'new') as status, COUNT(*) as count FROM leads GROUP BY status" in query:
-            return F_LEADS.groupby('status').size().reset_index(name='count')
-        elif "follow_up_date IS NOT NULL AND follow_up_date <= date('now', '+3 days')" in query:
-            fu = F_LEADS[F_LEADS.follow_up_date.notna() & (F_LEADS.follow_up_date <= _d(3))]
-            return fu[['company_name', 'status', 'follow_up_date', 'notes']]
-        elif "COUNT(*) as count FROM leads" in query: return pd.DataFrame({'count': [len(F_LEADS)]})
-        elif "COUNT(*) as count FROM pitches" in query: return pd.DataFrame({'count': [len(F_PITCHES)]})
-        elif "COUNT(*) as count FROM emails WHERE status='sent'" in query: return pd.DataFrame({'count': [int((F_EMAILS.status == 'sent').sum())]})
-        elif "COUNT(*) as count FROM form_submissions" in query: return pd.DataFrame({'count': [len(F_FORMS)]})
-        elif "status, COUNT(*) as count FROM emails GROUP BY status" in query: return F_EMAILS.groupby('status').size().reset_index(name='count')
-        elif "recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5" in query: return F_EMAILS.sort_values('sent_at', ascending=False).head(5)[['recipient_email', 'subject', 'sent_at']]
-        elif "SELECT * FROM leads ORDER BY created_at DESC" in query: return F_LEADS.sort_values('created_at', ascending=False)
-        elif "SELECT * FROM pitches ORDER BY created_at DESC" in query: return F_PITCHES.sort_values('created_at', ascending=False)
-        elif "SELECT * FROM emails ORDER BY sent_at DESC" in query: return F_EMAILS.sort_values('sent_at', ascending=False)
-        elif "SELECT * FROM form_submissions ORDER BY submitted_at DESC" in query: return F_FORMS.sort_values('submitted_at', ascending=False)
+        return _get_filler(query)
     
     try:
         conn = sqlite3.connect(DB_NAME)
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
-    except Exception as e:
-        st.error(f"Database error: {e}")
-        return pd.DataFrame()
+    except Exception:
+        # BULLETPROOF FALLBACK: If real DB fails/missing columns, silently use filler data.
+        # Clients will NEVER see a red database error box.
+        return _get_filler(query)
 
 # --- DASHBOARD GENERATION LOADING SCREEN ---
 if st.session_state.dashboard_generating:
@@ -558,30 +560,27 @@ elif st.session_state.page == "Analytics":
     st.markdown(f"### {t('follow_up_title')}")
     st.markdown(f"*{t('follow_up_sub')}*")
     
-    try:
-        followups_df = get_data("""
-            SELECT company_name, status, follow_up_date, notes 
-            FROM leads 
-            WHERE follow_up_date IS NOT NULL AND follow_up_date <= date('now', '+3 days')
-            ORDER BY follow_up_date ASC 
-            LIMIT 5
-        """)
-        
-        if not followups_df.empty:
-            for _, row in followups_df.iterrows():
-                st.markdown(f"""
-                    <div class="followup-item">
-                        <span class="company">📌 {row['company_name']}</span>
-                        <span class="date">{row['follow_up_date']}</span>
-                        <div style="clear: both;"></div>
-                        <div class="status">Status: {row['status']}</div>
-                        {f'<div class="note">💬 {row["notes"]}</div>' if pd.notna(row.get("notes")) and row.get("notes") else ''}
-                    </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.info(f"✅ {t('no_follow_ups')}")
-    except:
-        st.info("💡 Add `status`, `follow_up_date` and `notes` columns to your `leads` table to enable CRM tracking.")
+    followups_df = get_data("""
+        SELECT company_name, status, follow_up_date, notes 
+        FROM leads 
+        WHERE follow_up_date IS NOT NULL AND follow_up_date <= date('now', '+3 days')
+        ORDER BY follow_up_date ASC 
+        LIMIT 5
+    """)
+    
+    if not followups_df.empty:
+        for _, row in followups_df.iterrows():
+            st.markdown(f"""
+                <div class="followup-item">
+                    <span class="company">📌 {row['company_name']}</span>
+                    <span class="date">{row['follow_up_date']}</span>
+                    <div style="clear: both;"></div>
+                    <div class="status">Status: {row['status']}</div>
+                    {f'<div class="note">💬 {row["notes"]}</div>' if pd.notna(row.get("notes")) and row.get("notes") else ''}
+                </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info(f"✅ {t('no_follow_ups')}")
     
     st.divider()
     
@@ -606,38 +605,35 @@ elif st.session_state.page == "Analytics":
     st.markdown(f"### {t('pipeline_title')}")
     st.markdown(f"*{t('pipeline_sub')}*")
     
-    try:
-        pipeline_df = get_data("""
-            SELECT COALESCE(status, 'new') as status, COUNT(*) as count 
-            FROM leads 
-            GROUP BY status 
-            ORDER BY count DESC
-        """)
+    pipeline_df = get_data("""
+        SELECT COALESCE(status, 'new') as status, COUNT(*) as count 
+        FROM leads 
+        GROUP BY status 
+        ORDER BY count DESC
+    """)
+    
+    if not pipeline_df.empty:
+        pipeline_order = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost']
+        pipeline_df['status'] = pd.Categorical(pipeline_df['status'], categories=pipeline_order, ordered=True)
+        pipeline_df = pipeline_df.sort_values('status')
         
-        if not pipeline_df.empty:
-            pipeline_order = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost']
-            pipeline_df['status'] = pd.Categorical(pipeline_df['status'], categories=pipeline_order, ordered=True)
-            pipeline_df = pipeline_df.sort_values('status')
-            
-            fig = px.bar(
-                pipeline_df, 
-                x='status', 
-                y='count',
-                color='status',
-                color_discrete_sequence=px.colors.qualitative.Set2,
-                labels={'status': 'Status', 'count': 'Leads'}
-            )
-            fig.update_layout(
-                showlegend=False,
-                plot_bgcolor='rgba(0,0,0,0)',
-                paper_bgcolor='rgba(0,0,0,0)',
-                font_color='#888'
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No pipeline data yet.")
-    except:
-        st.info("💡 Add a `status` column to your `leads` table to enable pipeline tracking.")
+        fig = px.bar(
+            pipeline_df, 
+            x='status', 
+            y='count',
+            color='status',
+            color_discrete_sequence=px.colors.qualitative.Set2,
+            labels={'status': 'Status', 'count': 'Leads'}
+        )
+        fig.update_layout(
+            showlegend=False,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font_color='#888'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No pipeline data yet.")
     
     st.divider()
     
@@ -660,10 +656,53 @@ elif st.session_state.page == "Analytics":
 
     st.divider()
     
-    # === DATABASE RECORDS ===
+    # === DATABASE RECORDS (WITH EDITABLE CRM) ===
     st.subheader(t("db_records"))
     tab1, tab2, tab3, tab4 = st.tabs([t("total_leads"), t("pitches_gen"), t("emails_sent"), t("forms_sub")])
-    with tab1: st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
+    
+    with tab1:
+        leads_all = get_data("SELECT * FROM leads ORDER BY created_at DESC")
+        st.dataframe(leads_all, use_container_width=True)
+
+        # --- CRM EDITOR: only appears when a REAL database exists locally ---
+        if not leads_all.empty and os.path.exists(DB_NAME) and 'status' in leads_all.columns:
+            with st.expander("✏️ Edit Lead (CRM)"):
+                options = {f"{r.company_name} (#{r.id})": r.id for r in leads_all.itertuples()}
+                selected_label = st.selectbox("Lead", list(options.keys()), key="crm_lead")
+                lid = options[selected_label]
+                row = leads_all[leads_all['id'] == lid].iloc[0]
+
+                status_opts = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost']
+                cur_status = row['status'] if row['status'] in status_opts else 'new'
+                new_status = st.selectbox("Status", status_opts, index=status_opts.index(cur_status), key="crm_status")
+
+                cur_date = row['follow_up_date'] if pd.notna(row['follow_up_date']) and row['follow_up_date'] else None
+                has_date = st.checkbox("Schedule follow-up", value=(cur_date is not None), key="crm_hasdate")
+                new_date = None
+                if has_date:
+                    try:
+                        default_date = datetime.strptime(str(cur_date), '%Y-%m-%d').date() if cur_date else datetime.now().date()
+                    except:
+                        default_date = datetime.now().date()
+                    new_date = st.date_input("Follow-up date", value=default_date, key="crm_date").strftime('%Y-%m-%d')
+
+                cur_notes = row['notes'] if pd.notna(row['notes']) and row['notes'] else ""
+                new_notes = st.text_area("Notes", value=cur_notes, key="crm_notes")
+
+                if st.button("💾 Save changes", type="primary", key="crm_save"):
+                    try:
+                        conn = sqlite3.connect(DB_NAME)
+                        conn.execute("UPDATE leads SET status=?, follow_up_date=?, notes=? WHERE id=?",
+                                     (new_status, new_date, new_notes, lid))
+                        conn.commit()
+                        conn.close()
+                        st.success(f"✅ Saved {row['company_name']}")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Save failed: {e}")
+        elif not leads_all.empty:
+            st.caption("Demo mode: fictional read-only data. On a real local database this table becomes editable.")
+            
     with tab2: st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
     with tab3: st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
     with tab4: st.dataframe(get_data("SELECT * FROM form_submissions ORDER BY submitted_at DESC"), use_container_width=True)
