@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 import plotly.express as px
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import random
 import json
@@ -54,10 +54,24 @@ st.markdown("""
             animation: spin 1s linear infinite; 
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* CRM Follow-up Card */
+        .followup-item {
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-left: 4px solid #4CAF50;
+        }
+        .followup-item .company { color: #4CAF50; font-weight: 600; }
+        .followup-item .date { float: right; color: #4CAF50; font-size: 0.9em; }
+        .followup-item .status { color: #888; font-size: 0.9em; margin-top: 4px; }
+        .followup-item .note { color: #aaa; font-size: 0.9em; margin-top: 4px; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- FULL TRANSLATION DICTIONARY (Refined for "Toolmaker Showcase") ---
+# --- FULL TRANSLATION DICTIONARY (Toolmaker Showcase + CRM) ---
 T = {
     "en": {
         "onboarding_title": "Welcome to the Hunti AI Toolkit", 
@@ -68,13 +82,19 @@ T = {
         "biz_small": "Small Business Owner", "biz_agency": "Agency Owner", "biz_ecom": "E-commerce", "biz_freelance": "Freelancer / Solopreneur",
         "team_1": "Just me (Solo)", "team_2": "2-5 employees", "team_3": "6-20 employees", "team_4": "20+ employees",
         "goal_leads": "Generate more leads", "goal_support": "Improve customer support", "goal_admin": "Automate admin tasks", "goal_sales": "Streamline sales process",
-        "nav_hunti": "AI Consultant", "nav_analytics": "Analytics Dashboard", "nav_pitches": "Pitch Emailer", "sidebar_title": "Your Context", "reset_prefs": "Reset Preferences",
+        "nav_hunti": "AI Consultant", "nav_analytics": "CRM & Analytics", "nav_pitches": "Pitch Emailer", "sidebar_title": "Your Context", "reset_prefs": "Reset Preferences",
         "total_req": "Total Requests", "req_hour": "Requests (Last Hour)",
         "hunti_title": "Hunti AI: The Toolmaker's Showcase", 
         "hunti_welcome": "Welcome. I build custom AI automations that save businesses time, generate leads, and eliminate manual work. This platform is a live demonstration of my capabilities.", 
         "hunti_sub": "Tell me about your business challenges, and I'll demonstrate how my tools can solve them.", 
         "hunti_input": "What business challenge are you facing?",
-        "analytics_title": "Analytics Dashboard", "analytics_sub": "Real-time performance metrics of the automation tools in action.",
+        "analytics_title": "CRM & Analytics Dashboard", 
+        "analytics_sub": "Manage your sales pipeline and track automation performance in real-time.",
+        "follow_up_title": "📅 Follow Up Today",
+        "follow_up_sub": "Leads that need your attention right now",
+        "no_follow_ups": "No follow-ups scheduled. Your pipeline is clear!",
+        "pipeline_title": "📊 Sales Pipeline",
+        "pipeline_sub": "Lead distribution by status",
         "total_leads": "Total Leads", "pitches_gen": "Pitches Generated", "emails_sent": "Emails Sent", "forms_sub": "Forms Submitted", "activity_overview": "Activity Overview", "email_status": "Email Delivery Status", "recent_activity": "Recent Activity Log", "db_records": "Database Records",
         "pitch_title": "Automated Pitch Emailer", "pitch_sub": "Upload your leads, and watch my tool generate personalized, AI-powered sales pitches instantly.", "pitch_info": "How it works: This is a live demo of my automation pipeline. Upload a file, and the system will process it using the same logic I build for my clients.",
         "avail_leads": "Available Leads", "btn_gen_pitch": "Generate Pitches", "btn_view_pitch": "View Generated Pitches", "success_gen": "Successfully generated pitches!", "no_leads": "No leads found. Upload a file first!", "no_pitches": "No pitches generated yet.",
@@ -108,13 +128,19 @@ T = {
         "biz_small": "Kisvállalkozás Tulajdonos", "biz_agency": "Ügynökség Tulajdonos", "biz_ecom": "E-kereskedelem", "biz_freelance": "Szabadúszó",
         "team_1": "Egyedül vagyok", "team_2": "2-5 alkalmazott", "team_3": "6-20 alkalmazott", "team_4": "20+ alkalmazott",
         "goal_leads": "Több lead generálása", "goal_support": "Ügyféltámogatás javítása", "goal_admin": "Admin feladatok automatizálása", "goal_sales": "Értékesítés egyszerűsítése",
-        "nav_hunti": "AI Tanácsadó", "nav_analytics": "Analitikai Irányítópult", "nav_pitches": "Pitch Küldő", "sidebar_title": "Az Ön Kontextusa", "reset_prefs": "Beállítások visszaállítása",
+        "nav_hunti": "AI Tanácsadó", "nav_analytics": "CRM & Analitika", "nav_pitches": "Pitch Küldő", "sidebar_title": "Az Ön Kontextusa", "reset_prefs": "Beállítások visszaállítása",
         "total_req": "Összes kérés", "req_hour": "Kérések (óra)",
         "hunti_title": "Hunti AI: Az Eszközépítő Bemutatója", 
         "hunti_welcome": "Üdvözöllek. Egyedi AI Automatizációkat építek, amelyek időt takarítanak meg, leadet generálnak és megszüntetik a manuális munkát. Ez a platform a képességeim élő demonstrációja.", 
         "hunti_sub": "Mesélj az üzleti kihívásaidról, és megmutatom, hogyan oldhatják meg őket az eszközeim.", 
         "hunti_input": "Milyen üzleti kihívással néz szembe?",
-        "analytics_title": "Analitikai Irányítópult", "analytics_sub": "Az automatizációs eszközök valós idejű teljesítménymutatói.",
+        "analytics_title": "CRM & Analitikai Irányítópult", 
+        "analytics_sub": "Kezelje az értékesítési folyamatot és kövesse az automatizáció teljesítményét valós időben.",
+        "follow_up_title": "📅 Mai Visszahívások",
+        "follow_up_sub": "Leadek, amelyek most figyelmet igényelnek",
+        "no_follow_ups": "Nincs ütemezett visszahívás. A folyamat tiszta!",
+        "pipeline_title": "📊 Értékesítési Folyamat",
+        "pipeline_sub": "Leadek eloszlása státusz szerint",
         "total_leads": "Összes Lead", "pitches_gen": "Generált Pitch-ek", "emails_sent": "Elküldött Emailek", "forms_sub": "Kitöltött Űrlapok", "activity_overview": "Tevékenység", "email_status": "Email Státusz", "recent_activity": "Legutóbbi Aktivitás", "db_records": "Adatbázis",
         "pitch_title": "Automatizált Pitch Küldő", "pitch_sub": "Töltse fel leadjeit, és nézze meg, ahogy az eszközem azonnal személyre szabott, AI-alapú pitch-eket generál.", "pitch_info": "Hogyan működik: Ez az automatizálási folyamatom élő bemutatója. Töltsön fel egy fájlt, és a rendszer ugyanazzal a logikával dolgozza fel, amit az ügyfeleimnek is építek.",
         "avail_leads": "Elérhető Lead-ek", "btn_gen_pitch": "Pitch-ek Generálása", "btn_view_pitch": "Megtekintés", "success_gen": "Sikeresen generálva!", "no_leads": "Nincs lead! Töltsön fel egy fájlt!", "no_pitches": "Nincs pitch.",
@@ -148,13 +174,19 @@ T = {
         "biz_small": "Pequeña Empresa", "biz_agency": "Agencia", "biz_ecom": "E-commerce", "biz_freelance": "Autónomo",
         "team_1": "Solo yo", "team_2": "2-5 empleados", "team_3": "6-20 empleados", "team_4": "20+ empleados",
         "goal_leads": "Generar más leads", "goal_support": "Mejorar soporte", "goal_admin": "Automatizar admin", "goal_sales": "Optimizar ventas",
-        "nav_hunti": "Consultor IA", "nav_analytics": "Panel de Análisis", "nav_pitches": "Emailer", "sidebar_title": "Su Contexto", "reset_prefs": "Restablecer",
+        "nav_hunti": "Consultor IA", "nav_analytics": "CRM & Análisis", "nav_pitches": "Emailer", "sidebar_title": "Su Contexto", "reset_prefs": "Restablecer",
         "total_req": "Total Solicitudes", "req_hour": "Solicitudes (Hora)",
         "hunti_title": "Hunti AI: La Vitrina del Creador", 
         "hunti_welcome": "Bienvenido. Construyo automatizaciones con IA a medida que ahorran tiempo, generan leads y eliminan el trabajo manual. Esta plataforma es una demostración en vivo de mis capacidades.", 
         "hunti_sub": "Cuénteme sus desafíos empresariales y le demostraré cómo mis herramientas pueden resolverlos.", 
         "hunti_input": "¿Qué desafío empresarial enfrenta?",
-        "analytics_title": "Panel de Análisis", "analytics_sub": "Métricas de rendimiento en tiempo real de las herramientas en acción.",
+        "analytics_title": "CRM & Panel de Análisis", 
+        "analytics_sub": "Gestione su pipeline de ventas y siga el rendimiento de la automatización en tiempo real.",
+        "follow_up_title": "📅 Seguimientos de Hoy",
+        "follow_up_sub": "Leads que necesitan su atención ahora",
+        "no_follow_ups": "Sin seguimientos programados. ¡Su pipeline está claro!",
+        "pipeline_title": "📊 Pipeline de Ventas",
+        "pipeline_sub": "Distribución de leads por estado",
         "total_leads": "Total Leads", "pitches_gen": "Propuestas", "emails_sent": "Emails", "forms_sub": "Formularios", "activity_overview": "Actividad", "email_status": "Estado Emails", "recent_activity": "Actividad Reciente", "db_records": "Registros",
         "pitch_title": "Emailer de Propuestas", "pitch_sub": "Suba sus leads y vea cómo mi herramienta genera propuestas personalizadas al instante.", "pitch_info": "Cómo funciona: Esta es una demo en vivo de mi pipeline. Suba un archivo y el sistema lo procesará con la misma lógica que uso para mis clientes.",
         "avail_leads": "Leads Disponibles", "btn_gen_pitch": "Generar", "btn_view_pitch": "Ver", "success_gen": "¡Generado!", "no_leads": "¡Sin leads! Suba un archivo primero.", "no_pitches": "Sin propuestas.",
@@ -179,8 +211,7 @@ T = {
             "Autónomo": ["Demasiada administración", "Automatizar descubrimiento", "Automatizar facturación", "Encontrar clientes"]
         }
     }
-    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) follow the same "Toolmaker Showcase" pattern. 
-    # For brevity, they are omitted here but should be updated similarly in your actual file.
+    # Note: Other languages (fr, de, it, pt, ru, zh, ja, ar) follow the same pattern.
 }
 
 # --- SESSION STATE ---
@@ -207,6 +238,80 @@ def t(key):
             return key
     return val
 
+# --- FILLER (DEMO) DATA: fictional companies, realistic CRM, always "alive" ---
+def _d(offset_days, fmt='%Y-%m-%d'):
+    return (datetime.now() + timedelta(days=offset_days)).strftime(fmt)
+
+# Detailed leads (drive the Follow-Up widget + pipeline)
+_DETAILED_LEADS = [
+    ("Danube Bistro", "Fő utca 12, Veszprém", "danubebistro.hu", "+36 20 555 0101", 4.6, "replied", _d(0), "Asked for pricing - send booking demo", -12),
+    ("Panorama Restaurant", "Szabadság tér 3, Veszprém", "panoramarest.hu", "+36 20 555 0102", 4.5, "replied", _d(0), "Wants online table reservation", -10),
+    ("City Dental Studio", "Egyetem utca 8, Veszprém", "citydental.hu", "+36 20 555 0103", 4.8, "meeting", _d(1), "Demo call scheduled", -9),
+    ("Balaton Wellness Hotel", "Part sétány 5, Balatonfüred", "balatonwellness.hu", "+36 20 555 0104", 4.4, "contacted", _d(2), "Intro email sent, awaiting reply", -8),
+    ("GreenLeaf Pharmacy", "Piac utca 21, Veszprém", "greenleafpharma.hu", "+36 20 555 0105", 4.2, "contacted", _d(3), "Follow up after the weekend", -7),
+    ("Veszprém Coffee Roasters", "Zölderdő utca 2, Veszprém", "kaveporkolo.hu", "+36 20 555 0106", 4.7, "won", None, "Closed: website + booking system", -30),
+    ("Old Town Bakery", "Vár utca 9, Veszprém", "oldtownbakery.hu", "+36 20 555 0107", 4.6, "won", None, "Closed: lead automation", -45),
+    ("Aurora Yoga Studio", "Dózsa utca 4, Veszprém", "aurorayoga.hu", "+36 20 555 0108", 4.9, "new", None, None, -2),
+    ("Family Hair Salon", "Kossuth utca 15, Veszprém", "familyhair.hu", "+36 20 555 0109", 4.3, "new", None, None, -1),
+    ("Metro Logistics Kft.", "Ipari park 7, Veszprém", "metrologistics.hu", "+36 20 555 0110", 3.8, "contacted", _d(5), "Second follow-up next week", -15),
+    ("TechNova Solutions", "Egyetem utca 1, Veszprém", "technova.hu", "+36 20 555 0111", 3.9, "lost", None, "Budget freeze until Q4", -20),
+    ("Silverlake Guesthouse", "Tó utca 3, Herend", "silverlake.hu", "+36 20 555 0112", 4.1, "lost", None, "Went with competitor", -25),
+]
+
+# Extra volume leads (make the pipeline look busy)
+_EXTRA_LEADS = [
+    ("Lakeside Camping", "contacted"), ("Urban Fit Gym", "new"), ("Panda Sushi Bar", "replied"),
+    ("Hegyvidék Panzió", "contacted"), ("Blue Danube Travel", "won"), ("Menta Café", "replied"),
+    ("Kertmozi Bistro", "new"), ("Salt & Pepper Deli", "contacted"), ("Vadvirág Florist", "new"),
+    ("Kód Könyvesbolt", "lost"), ("Napfény Solar Kft.", "contacted"), ("Hullám Surf Shop", "new"),
+    ("Borostyán Wine Bar", "replied"), ("Tavirózsa Spa", "meeting"), ("Mester Autószerviz", "contacted"),
+    ("Lomb Playhouse Café", "new"), ("Duna View Apartments", "won"), ("Kakukk Catering", "contacted"),
+    ("Fénykép Műterem Studio", "new"), ("Bodza Szörp Manufaktúra", "lost"),
+]
+
+_lead_rows = []
+_id = 1
+for (name, addr, web, phone, rating, status, fu, notes, off) in _DETAILED_LEADS:
+    _lead_rows.append({"id": _id, "company_name": name, "address": addr, "website": web, "phone": phone,
+                       "rating": rating, "status": status, "follow_up_date": fu, "notes": notes,
+                       "created_at": _d(off, '%Y-%m-%d %H:%M')})
+    _id += 1
+for (name, status) in _EXTRA_LEADS:
+    _lead_rows.append({"id": _id, "company_name": name, "address": "", "website": name.lower().replace(" ", "").replace(".", "") + ".hu",
+                       "phone": "", "rating": round(3.6 + (_id % 13) / 10, 1), "status": status,
+                       "follow_up_date": None, "notes": None,
+                       "created_at": _d(-((_id * 7) % 50 + 3), '%Y-%m-%d %H:%M')})
+    _id += 1
+
+F_LEADS = pd.DataFrame(_lead_rows)
+
+_pitch_rows = []
+for i, row in F_LEADS.head(24).iterrows():
+    _pitch_rows.append({"id": i + 1, "lead_id": row["id"],
+                        "pitch_text": f"Hi {row['company_name']} team, I noticed your website has no online booking - we could set that up this week. Interested in a free demo?",
+                        "created_at": _d(-(i // 2) - 1, '%Y-%m-%d %H:%M')})
+F_PITCHES = pd.DataFrame(_pitch_rows)
+
+_subjects = ["Quick question about your bookings", "Free automation demo for you", "Ideas for your website", "Following up"]
+_email_rows = []
+for i, row in F_LEADS.head(20).iterrows():
+    status = "sent"
+    if i == 7: status = "failed"
+    if i == 13: status = "pending"
+    if i == 18: status = "failed"
+    _email_rows.append({"id": i + 1, "pitch_id": i + 1, "recipient_email": f"info@{row['website']}",
+                        "subject": _subjects[i % 4], "status": status,
+                        "sent_at": _d(-(i // 3) - 1, '%Y-%m-%d') + f" {8 + i % 10}:{(i * 7) % 60:02d}"})
+F_EMAILS = pd.DataFrame(_email_rows)
+
+_form_rows = []
+for j, idx in enumerate([0, 2, 3, 5, 7, 9]):
+    row = F_LEADS.iloc[idx]
+    _form_rows.append({"id": j + 1, "pitch_id": idx + 1, "company_name": row["company_name"],
+                       "url": f"{row['website']}/contact", "status": "success",
+                       "submitted_at": _d(-j - 1, '%Y-%m-%d %H:%M')})
+F_FORMS = pd.DataFrame(_form_rows)
+
 def get_data(query):
     use_demo = False
     try:
@@ -220,16 +325,22 @@ def get_data(query):
     except: use_demo = True
     
     if use_demo:
-        if "COUNT(*) as count FROM leads" in query: return pd.DataFrame({'count': [47]})
-        elif "COUNT(*) as count FROM pitches" in query: return pd.DataFrame({'count': [32]})
-        elif "COUNT(*) as count FROM emails WHERE status='sent'" in query: return pd.DataFrame({'count': [28]})
-        elif "COUNT(*) as count FROM form_submissions" in query: return pd.DataFrame({'count': [15]})
-        elif "status, COUNT(*) as count FROM emails GROUP BY status" in query: return pd.DataFrame({'status': ['sent', 'failed', 'pending'], 'count': [28, 2, 2]})
-        elif "recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5" in query: return pd.DataFrame({'recipient_email': ['contact@acme.com', 'info@techsol.com'], 'subject': ['AI Partnership', 'Workflow Demo'], 'sent_at': ['2024-01-15', '2024-01-14']})
-        elif "SELECT * FROM leads ORDER BY created_at DESC" in query: return pd.DataFrame({'id': [1, 2], 'company_name': ['Acme Corp', 'Tech Solutions'], 'website': ['acme.com', 'techsol.com'], 'rating': [4.5, 3.8], 'created_at': ['2024-01-15', '2024-01-14']})
-        elif "SELECT * FROM pitches ORDER BY created_at DESC" in query: return pd.DataFrame({'id': [1, 2], 'lead_id': [1, 2], 'pitch_text': ['Pitch for Acme...', 'Pitch for Tech...'], 'created_at': ['2024-01-15', '2024-01-14']})
-        elif "SELECT * FROM emails ORDER BY sent_at DESC" in query: return pd.DataFrame({'id': [1], 'pitch_id': [1], 'recipient_email': ['contact@acme.com'], 'subject': ['AI Partnership'], 'status': ['sent'], 'sent_at': ['2024-01-15']})
-        elif "SELECT * FROM form_submissions ORDER BY submitted_at DESC" in query: return pd.DataFrame({'id': [1, 2], 'company_name': ['Acme Corp', 'Global Logistics'], 'url': ['acme.com/contact', 'globallog.com/contact'], 'status': ['success', 'success'], 'submitted_at': ['2024-01-15', '2024-01-14']})
+        # IMPORTANT: specific CRM queries BEFORE generic count queries
+        if "COALESCE(status, 'new') as status, COUNT(*) as count FROM leads GROUP BY status" in query:
+            return F_LEADS.groupby('status').size().reset_index(name='count')
+        elif "follow_up_date IS NOT NULL AND follow_up_date <= date('now', '+3 days')" in query:
+            fu = F_LEADS[F_LEADS.follow_up_date.notna() & (F_LEADS.follow_up_date <= _d(3))]
+            return fu[['company_name', 'status', 'follow_up_date', 'notes']]
+        elif "COUNT(*) as count FROM leads" in query: return pd.DataFrame({'count': [len(F_LEADS)]})
+        elif "COUNT(*) as count FROM pitches" in query: return pd.DataFrame({'count': [len(F_PITCHES)]})
+        elif "COUNT(*) as count FROM emails WHERE status='sent'" in query: return pd.DataFrame({'count': [int((F_EMAILS.status == 'sent').sum())]})
+        elif "COUNT(*) as count FROM form_submissions" in query: return pd.DataFrame({'count': [len(F_FORMS)]})
+        elif "status, COUNT(*) as count FROM emails GROUP BY status" in query: return F_EMAILS.groupby('status').size().reset_index(name='count')
+        elif "recipient_email, subject, sent_at FROM emails ORDER BY sent_at DESC LIMIT 5" in query: return F_EMAILS.sort_values('sent_at', ascending=False).head(5)[['recipient_email', 'subject', 'sent_at']]
+        elif "SELECT * FROM leads ORDER BY created_at DESC" in query: return F_LEADS.sort_values('created_at', ascending=False)
+        elif "SELECT * FROM pitches ORDER BY created_at DESC" in query: return F_PITCHES.sort_values('created_at', ascending=False)
+        elif "SELECT * FROM emails ORDER BY sent_at DESC" in query: return F_EMAILS.sort_values('sent_at', ascending=False)
+        elif "SELECT * FROM form_submissions ORDER BY submitted_at DESC" in query: return F_FORMS.sort_values('submitted_at', ascending=False)
     
     try:
         conn = sqlite3.connect(DB_NAME)
@@ -394,7 +505,6 @@ if st.session_state.page == "Hunti AI":
     st.divider()
     
     if st.session_state.business_type:
-        # FIXED: Now uses translation dictionary
         st.subheader(f"{t('challenges_header')} {st.session_state.business_type}")
         cols = st.columns(2)
         
@@ -444,6 +554,38 @@ elif st.session_state.page == "Analytics":
     st.markdown(t("analytics_sub"))
     st.divider()
     
+    # === CRM FOLLOW-UP WIDGET ===
+    st.markdown(f"### {t('follow_up_title')}")
+    st.markdown(f"*{t('follow_up_sub')}*")
+    
+    try:
+        followups_df = get_data("""
+            SELECT company_name, status, follow_up_date, notes 
+            FROM leads 
+            WHERE follow_up_date IS NOT NULL AND follow_up_date <= date('now', '+3 days')
+            ORDER BY follow_up_date ASC 
+            LIMIT 5
+        """)
+        
+        if not followups_df.empty:
+            for _, row in followups_df.iterrows():
+                st.markdown(f"""
+                    <div class="followup-item">
+                        <span class="company">📌 {row['company_name']}</span>
+                        <span class="date">{row['follow_up_date']}</span>
+                        <div style="clear: both;"></div>
+                        <div class="status">Status: {row['status']}</div>
+                        {f'<div class="note">💬 {row["notes"]}</div>' if pd.notna(row.get("notes")) and row.get("notes") else ''}
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info(f"✅ {t('no_follow_ups')}")
+    except:
+        st.info("💡 Add `status`, `follow_up_date` and `notes` columns to your `leads` table to enable CRM tracking.")
+    
+    st.divider()
+    
+    # === METRIC CARDS ===
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         leads_df = get_data("SELECT COUNT(*) as count FROM leads")
@@ -459,6 +601,47 @@ elif st.session_state.page == "Analytics":
         st.markdown(f'<div class="metric-card"><h3>{forms_df["count"][0] if not forms_df.empty else 0}</h3><p>{t("forms_sub")}</p></div>', unsafe_allow_html=True)
 
     st.divider()
+    
+    # === PIPELINE FUNNEL CHART ===
+    st.markdown(f"### {t('pipeline_title')}")
+    st.markdown(f"*{t('pipeline_sub')}*")
+    
+    try:
+        pipeline_df = get_data("""
+            SELECT COALESCE(status, 'new') as status, COUNT(*) as count 
+            FROM leads 
+            GROUP BY status 
+            ORDER BY count DESC
+        """)
+        
+        if not pipeline_df.empty:
+            pipeline_order = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost']
+            pipeline_df['status'] = pd.Categorical(pipeline_df['status'], categories=pipeline_order, ordered=True)
+            pipeline_df = pipeline_df.sort_values('status')
+            
+            fig = px.bar(
+                pipeline_df, 
+                x='status', 
+                y='count',
+                color='status',
+                color_discrete_sequence=px.colors.qualitative.Set2,
+                labels={'status': 'Status', 'count': 'Leads'}
+            )
+            fig.update_layout(
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font_color='#888'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No pipeline data yet.")
+    except:
+        st.info("💡 Add a `status` column to your `leads` table to enable pipeline tracking.")
+    
+    st.divider()
+    
+    # === ACTIVITY OVERVIEW ===
     st.subheader(t("activity_overview"))
     col_chart1, col_chart2 = st.columns(2)
     with col_chart1:
@@ -476,6 +659,8 @@ elif st.session_state.page == "Analytics":
         else: st.info("No recent emails found.")
 
     st.divider()
+    
+    # === DATABASE RECORDS ===
     st.subheader(t("db_records"))
     tab1, tab2, tab3, tab4 = st.tabs([t("total_leads"), t("pitches_gen"), t("emails_sent"), t("forms_sub")])
     with tab1: st.dataframe(get_data("SELECT * FROM leads ORDER BY created_at DESC"), use_container_width=True)
