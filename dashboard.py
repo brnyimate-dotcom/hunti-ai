@@ -349,8 +349,7 @@ def get_data(query):
         conn.close()
         return df
     except Exception:
-        # BULLETPROOF FALLBACK: If real DB fails/missing columns, silently use filler data.
-        # Clients will NEVER see a red database error box.
+        # BULLETPROOF FALLBACK: if the real DB is broken/incomplete, silently use filler.
         return _get_filler(query)
 
 # --- DASHBOARD GENERATION LOADING SCREEN ---
@@ -612,7 +611,7 @@ elif st.session_state.page == "Analytics":
         ORDER BY count DESC
     """)
     
-    if not pipeline_df.empty:
+    if not pipeline_df.empty and 'status' in pipeline_df.columns:
         pipeline_order = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost']
         pipeline_df['status'] = pd.Categorical(pipeline_df['status'], categories=pipeline_order, ordered=True)
         pipeline_df = pipeline_df.sort_values('status')
@@ -656,52 +655,55 @@ elif st.session_state.page == "Analytics":
 
     st.divider()
     
-    # === DATABASE RECORDS (WITH EDITABLE CRM) ===
+    # === DATABASE RECORDS (EDITABLE LEADS TABLE) ===
     st.subheader(t("db_records"))
     tab1, tab2, tab3, tab4 = st.tabs([t("total_leads"), t("pitches_gen"), t("emails_sent"), t("forms_sub")])
     
     with tab1:
         leads_all = get_data("SELECT * FROM leads ORDER BY created_at DESC")
-        st.dataframe(leads_all, use_container_width=True)
-
-        # --- CRM EDITOR: only appears when a REAL database exists locally ---
-        if not leads_all.empty and os.path.exists(DB_NAME) and 'status' in leads_all.columns:
-            with st.expander("✏️ Edit Lead (CRM)"):
-                options = {f"{r.company_name} (#{r.id})": r.id for r in leads_all.itertuples()}
-                selected_label = st.selectbox("Lead", list(options.keys()), key="crm_lead")
-                lid = options[selected_label]
-                row = leads_all[leads_all['id'] == lid].iloc[0]
-
-                status_opts = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost']
-                cur_status = row['status'] if row['status'] in status_opts else 'new'
-                new_status = st.selectbox("Status", status_opts, index=status_opts.index(cur_status), key="crm_status")
-
-                cur_date = row['follow_up_date'] if pd.notna(row['follow_up_date']) and row['follow_up_date'] else None
-                has_date = st.checkbox("Schedule follow-up", value=(cur_date is not None), key="crm_hasdate")
-                new_date = None
-                if has_date:
-                    try:
-                        default_date = datetime.strptime(str(cur_date), '%Y-%m-%d').date() if cur_date else datetime.now().date()
-                    except:
-                        default_date = datetime.now().date()
-                    new_date = st.date_input("Follow-up date", value=default_date, key="crm_date").strftime('%Y-%m-%d')
-
-                cur_notes = row['notes'] if pd.notna(row['notes']) and row['notes'] else ""
-                new_notes = st.text_area("Notes", value=cur_notes, key="crm_notes")
-
-                if st.button("💾 Save changes", type="primary", key="crm_save"):
-                    try:
-                        conn = sqlite3.connect(DB_NAME)
-                        conn.execute("UPDATE leads SET status=?, follow_up_date=?, notes=? WHERE id=?",
-                                     (new_status, new_date, new_notes, lid))
-                        conn.commit()
-                        conn.close()
-                        st.success(f"✅ Saved {row['company_name']}")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Save failed: {e}")
-        elif not leads_all.empty:
-            st.caption("Demo mode: fictional read-only data. On a real local database this table becomes editable.")
+        
+        # EDITABLE TABLE: double-click a cell to edit, + to add rows, select row to delete
+        edited_leads = st.data_editor(
+            leads_all,
+            use_container_width=True,
+            num_rows="dynamic",
+            key="leads_editor",
+            column_config={
+                "id": st.column_config.NumberColumn("id", disabled=True),
+                "company_name": st.column_config.TextColumn("company_name", required=True),
+                "status": st.column_config.SelectboxColumn("status", options=["new", "contacted", "replied", "meeting", "won", "lost"]),
+                "follow_up_date": st.column_config.TextColumn("follow_up_date"),
+                "notes": st.column_config.TextColumn("notes"),
+            }
+        )
+        
+        if st.button("💾 Save changes", type="primary", key="save_leads"):
+            try:
+                conn = sqlite3.connect(DB_NAME)
+                cur = conn.cursor()
+                cur.execute('''CREATE TABLE IF NOT EXISTS leads (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, company_name TEXT NOT NULL, address TEXT, website TEXT,
+                    phone TEXT, rating REAL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    status TEXT DEFAULT 'new', follow_up_date DATE, notes TEXT)''')
+                cur.execute("DELETE FROM leads")
+                for _, r in edited_leads.iterrows():
+                    cur.execute('''INSERT INTO leads (company_name, address, website, phone, rating, status, follow_up_date, notes, created_at)
+                                   VALUES (?,?,?,?,?,?,?,?,?)''',
+                                (r.get('company_name', '') or '',
+                                 r.get('address', '') if pd.notna(r.get('address')) else '',
+                                 r.get('website', '') if pd.notna(r.get('website')) else '',
+                                 r.get('phone', '') if pd.notna(r.get('phone')) else '',
+                                 float(r['rating']) if pd.notna(r.get('rating')) else None,
+                                 r.get('status', 'new') if pd.notna(r.get('status')) and r.get('status') else 'new',
+                                 r.get('follow_up_date') if pd.notna(r.get('follow_up_date')) and r.get('follow_up_date') else None,
+                                 r.get('notes', '') if pd.notna(r.get('notes')) else '',
+                                 r.get('created_at') if pd.notna(r.get('created_at')) else datetime.now().strftime('%Y-%m-%d %H:%M')))
+                conn.commit()
+                conn.close()
+                st.success("✅ Saved!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Save failed: {e}")
             
     with tab2: st.dataframe(get_data("SELECT * FROM pitches ORDER BY created_at DESC"), use_container_width=True)
     with tab3: st.dataframe(get_data("SELECT * FROM emails ORDER BY sent_at DESC"), use_container_width=True)
